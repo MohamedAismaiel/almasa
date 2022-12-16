@@ -1,24 +1,99 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { Fragment, useContext, useEffect, useState } from "react";
+import { LoginContext } from "./components/context/loginContext";
+import EmailForm from "./components/Modal/emailForm";
+import Images from "./components/Modal/images";
+import Nav from "./components/navigation/nav";
 
-function App() {
+function App(props) {
+  // const isAuth = useContext(LoginContext).isAuth;
+  const setStatusctx = useContext(LoginContext).isAthStatus;
+  const setTokenctx = useContext(LoginContext).setTokenHandler;
+  const setUseridctx = useContext(LoginContext).setUseridHandler;
+  const setAppCtx = useContext(LoginContext).setApartmentsHandler;
+  const token = useContext(LoginContext).token;
+  const logoutHandler = useContext(LoginContext).logoutHandler;
+  const setAutoLogout = useContext(LoginContext).setAutoLogout;
+  const imageGalleryIsShown = useContext(LoginContext).imageIsShown;
+  const emailFormShown = useContext(LoginContext).emailForm;
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const expiryDate = localStorage.getItem("expiryDate");
+    if (!token || !expiryDate) {
+      return;
+    }
+    if (new Date(expiryDate) <= new Date()) {
+      logoutHandler();
+      return;
+    }
+    const userId = localStorage.getItem("userId");
+    setStatusctx(true);
+    setTokenctx(token);
+    setUseridctx(userId);
+    const remainingMilliseconds =
+      new Date(expiryDate).getTime() - new Date().getTime();
+    setAutoLogout(remainingMilliseconds);
+  });
+
+  useEffect(() => {
+    const graphqlQuery = {
+      query: `
+    query{ 
+      apartments{
+        _id
+        type
+        rentOrSale
+        isAvaliable
+        price
+        location
+        space
+        rooms
+        description
+        finishing
+        bathrooms
+        photos {
+          location
+          isLanding
+          id
+        }
+        spaceUnit
+        amenities
+        paymentType
+        deliveryDate
+        refrenceName
+        mainHeader
+        createdAt
+        updatedAt
+      }}
+          `,
+    };
+    fetch("http://localhost:8080/graphql", {
+      method: "POST",
+      headers: {
+        Authorization: "Bearer " + token,
+        "Content-type": "application/json",
+      },
+      body: JSON.stringify(graphqlQuery),
+    })
+      .then((res) => {
+        return res.json();
+      })
+      .then((resData) => {
+        if (resData) {
+          setAppCtx(resData.data.apartments);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Fragment>
+      {emailFormShown && <EmailForm />}
+      {imageGalleryIsShown && <Images />}
+      <Nav />
+    </Fragment>
   );
 }
 
