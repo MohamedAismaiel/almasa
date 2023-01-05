@@ -2,9 +2,11 @@ import { Fragment, useEffect, useRef, useState } from "react";
 import Select from "react-select";
 import { MdOutlineExpandMore } from "react-icons/md";
 import { useLocation, useSearchParams } from "react-router-dom";
+import { clear } from "@testing-library/user-event/dist/clear";
+import { logDOM } from "@testing-library/react";
 function FilterOptions(props) {
   const [searchParams, setSearchParams] = useSearchParams();
-
+  const [maxPriceIsTouched, setMaxPriceIsTouched] = useState(false);
   const apartmentTypeInitialValue =
     searchParams.get("type") === null || searchParams.get("type") === "allTypes"
       ? null
@@ -60,11 +62,14 @@ function FilterOptions(props) {
   const [bathroomsNumbers, setBathroomsNumbers] = useState(
     bathroomsInitialValue === null ? [] : bathroomsInitialValue
   );
+
   const [minPrice, setMinPrice] = useState(null);
   const [maxPrice, setMaxPrice] = useState(null);
   const [dropdown, toggleDropDown] = useState(false);
   const priceButtonRef = useRef();
   const location = useLocation();
+  const bedroomRef = useRef();
+  const bathroomRef = useRef();
 
   const apartmentOptions = [
     { value: "apartment", label: "Apartment" },
@@ -123,8 +128,10 @@ function FilterOptions(props) {
       height: "3rem",
     }),
   };
-  const bedroomHandler = (e) => {
+  const bedroomHandler = (e, action) => {
     let roomnumbers = [];
+
+    // console.log(    bedroomRef.current.commonProps.selectProps.value);
     e.forEach((element) => {
       roomnumbers.push(+element.value);
     });
@@ -176,16 +183,30 @@ function FilterOptions(props) {
 
   useEffect(() => {
     if (location.search.length === 0) {
-      setBedroomsNumbers([]);
       setApartmentType(null);
+      bedroomRef.current.commonProps.clearValue();
+      bathroomRef.current.commonProps.clearValue();
     }
   }, [location]);
-  const x = bedroomsOptions.filter((value) => {
+
+  const x = bedroomsOptions.filter(({ value }) => {
     // console.log(value);
     // console.log(bedroomsNumbers);
     return value === bedroomsNumbers;
   });
+  function isPositiveInteger(str) {
+    if (typeof str !== "string") {
+      return false;
+    }
 
+    const num = Number(str);
+
+    if (Number.isInteger(num) && num > 0) {
+      return true;
+    }
+
+    return false;
+  }
   return (
     <Fragment>
       <Select
@@ -217,7 +238,7 @@ function FilterOptions(props) {
         }}
       />
       <Select
-        // value={bedroomsOptions.filter(({ value }) => value === bedroomsNumbers)}
+        ref={bedroomRef}
         options={bedroomsOptions}
         placeholder="bedrooms"
         isMulti="true"
@@ -240,6 +261,7 @@ function FilterOptions(props) {
       />
 
       <Select
+        ref={bathroomRef}
         isSearchable={false}
         options={bathroomsOptions}
         placeholder="bathrooms"
@@ -269,10 +291,21 @@ function FilterOptions(props) {
           data-close-drodown="false"
         >
           <p
+            placeholder="price"
             className="filterBar-inputsContainer-priceContiner-selector-text"
             data-close-drodown="false"
           >
-            price
+            {minPrice === null && maxPrice === null && "price"}
+
+            {minPrice === null && maxPrice !== null && `Up to ${maxPrice} EGP`}
+
+            {minPrice !== null &&
+              maxPrice === null &&
+              `From ${minPrice} EGP / `}
+
+            {minPrice !== null &&
+              maxPrice !== null &&
+              `${minPrice} - ${maxPrice} EGP`}
           </p>
           <span
             className="filterBar-inputsContainer-priceContiner-selector-line"
@@ -284,30 +317,64 @@ function FilterOptions(props) {
             data-close-drodown="false"
           />
         </div>
-        {dropdown && (
-          <div
-            className="filterBar-inputsContainer-priceContiner-dropdown"
-            data-close-drodown="false"
-          >
-            <input
-              className="filterBar-inputsContainer-priceContiner-dropdown-minPrice"
-              placeholder="Min Price (EGP)"
+        {
+          dropdown && (
+            <div
+              className="filterBar-inputsContainer-priceContiner-dropdown"
               data-close-drodown="false"
-              onChange={(e) => {
-                setMinPrice(e.target.value);
-              }}
-            />
-            <span data-close-drodown="false">&#8212;</span>
-            <input
-              className="filterBar-inputsContainer-priceContiner-dropdown-maxPrice"
-              placeholder="Max Price (EGP)"
-              data-close-drodown="false"
-              onChange={(e) => {
-                setMaxPrice(e.target.value);
-              }}
-            />
-          </div>
-        )}
+            >
+              <input
+                onBlur={(e) => {
+                  if (+minPrice > +maxPrice && maxPriceIsTouched) {
+                    setMaxPrice((prevState) => {
+                      setMinPrice(prevState);
+                      return minPrice;
+                    });
+                  }
+                }}
+                className="filterBar-inputsContainer-priceContiner-dropdown-minPrice"
+                placeholder="Min Price (EGP)"
+                data-close-drodown="false"
+                value={minPrice !== null ? minPrice : ""}
+                onChange={(e) => {
+                  setMinPrice(e.target.value.replace(/\D/g, ""));
+                  if (e.target.value.length === 0) {
+                    setMinPrice(null);
+                  }
+                }}
+              />
+              <span data-close-drodown="false">&#8212;</span>
+              <input
+                onBlur={(e) => {
+                  if (+minPrice > +maxPrice && maxPriceIsTouched) {
+                    setMaxPrice((prevState) => {
+                      setMinPrice(prevState);
+                      return minPrice;
+                    });
+                  }
+                }}
+                className="filterBar-inputsContainer-priceContiner-dropdown-maxPrice"
+                placeholder="Max Price (EGP)"
+                data-close-drodown="false"
+                value={maxPrice !== null ? maxPrice : ""}
+                onChange={(e) => {
+                  setMaxPriceIsTouched(true);
+                  setMaxPrice(e.target.value.replace(/\D/g, ""));
+                  if (maxPrice < minPrice) {
+                  }
+                  if (e.target.value.length === 0) {
+                    setMaxPrice(null);
+                  }
+                }}
+              />
+            </div>
+          )
+          // (+minPrice > +maxPrice &&
+          //   setMaxPrice((prevState) => {
+          //     setMinPrice(prevState);
+          //     return minPrice;
+          //   }))
+        }
       </div>
     </Fragment>
   );

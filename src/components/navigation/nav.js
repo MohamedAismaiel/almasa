@@ -40,9 +40,7 @@ function Nav() {
             <div className="nav-links-group1">
               <Link to="/">Logo</Link>
               <Link to="/sale">Sale </Link>
-              <Link to="/rent" onClick={(e) => {}}>
-                Rent{" "}
-              </Link>
+              <Link to="/rent">Rent </Link>
               <Link to="/commercial-sale">Commercial sale </Link>
               <Link to="/commercial-rent">Commercial rent </Link>
             </div>

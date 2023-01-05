@@ -3,7 +3,6 @@ import { LoginContext } from "../components/context/loginContext";
 import ApartmentCard from "../components/apartmentCard/apartmentCard";
 import FilterBar from "../components/filter bar/filterBar";
 import { useLocation, useSearchParams } from "react-router-dom";
-import { GiDigDug } from "react-icons/gi";
 
 function SalePage() {
   // const isAuth = useContext(LoginContext).isAuth;
@@ -100,7 +99,7 @@ function SalePage() {
         console.log(err);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [location]);
 
   if (apartments != null) {
     const getValues = (values) => {

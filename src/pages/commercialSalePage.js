@@ -105,7 +105,7 @@ function CommericalSalePage() {
         console.log(err);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [location]);
   if (apartments !== null) {
     const getValues = (values) => {
       setApartments(values.data.filterdApartments);

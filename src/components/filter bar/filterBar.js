@@ -122,9 +122,9 @@ function FilterBar(props) {
     const bedroomsNumberStringfy = JSON.stringify(bedroomsNumbers);
     const rentTypeStringfy = JSON.stringify(rentType);
     const apartmentTypeStringfy = JSON.stringify(apartmentType);
-
-    const graphqlQuery = {
-      query: `query filterdApartments($rentType:String,$apartmentType:String,$bedroomsNumbers:String,$bathroomsNumbers:String,$maxPrice:String,$minPrice:String)
+    setTimeout(() => {
+      const graphqlQuery = {
+        query: `query filterdApartments($rentType:String,$apartmentType:String,$bedroomsNumbers:String,$bathroomsNumbers:String,$maxPrice:String,$minPrice:String)
       {
         filterdApartments(filteredApartmentsInput:{rentType:$rentType apartmentType:$apartmentType  bedroomsNumbers:$bedroomsNumbers  bathroomsNumbers:$bathroomsNumbers  maxPrice:$maxPrice minPrice:$minPrice }  )
 
@@ -156,63 +156,64 @@ function FilterBar(props) {
         }
       }
       `,
-      variables: {
-        rentType: rentTypeStringfy,
-        apartmentType: apartmentTypeStringfy,
-        maxPrice: maxPrice,
-        minPrice: minPrice,
-        bathroomsNumbers: bathroomsNumberStringfy,
-        bedroomsNumbers: bedroomsNumberStringfy,
-      },
-    };
-    return fetch("http://localhost:8080/graphql", {
-      method: "POST",
-      headers: {
-        "Content-type": "application/json",
-      },
-      body: JSON.stringify(graphqlQuery),
-    })
-      .then((res) => {
-        return res.json();
+        variables: {
+          rentType: rentTypeStringfy,
+          apartmentType: apartmentTypeStringfy,
+          maxPrice: maxPrice,
+          minPrice: minPrice,
+          bathroomsNumbers: bathroomsNumberStringfy,
+          bedroomsNumbers: bedroomsNumberStringfy,
+        },
+      };
+      return fetch("http://localhost:8080/graphql", {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json",
+        },
+        body: JSON.stringify(graphqlQuery),
       })
-      .then((resData) => {
-        const apartmentTypeInUrl =
-          apartmentType === null ? "allTypes" : apartmentType;
-        const bedsInUrl =
-          bedroomsNumbers.length === 0
-            ? "all"
-            : JSON.stringify(bedroomsNumbers);
-        const BathsInUrl =
-          bathroomsNumbers.length === 0
-            ? "all"
-            : JSON.stringify(bathroomsNumbers);
-        const minPriceInUrl = minPrice === null ? "min" : minPrice;
-        const maxPriceInUrl = maxPrice === null ? "max" : maxPrice;
-        if (rentType !== rentTypeInitialValue) {
-          navigate({
-            pathname: `/${rentType}`,
-            search: createSearchParams({
-              bor: rentType,
-              type: apartmentTypeInUrl,
-              beds: bedsInUrl,
-              baths: BathsInUrl,
-              minP: minPriceInUrl,
-              maxP: maxPriceInUrl,
-            }).toString(),
-          });
-        } else {
-          props.getValues(resData);
+        .then((res) => {
+          return res.json();
+        })
+        .then((resData) => {
+          const apartmentTypeInUrl =
+            apartmentType === null ? "allTypes" : apartmentType;
+          const bedsInUrl =
+            bedroomsNumbers.length === 0
+              ? "all"
+              : JSON.stringify(bedroomsNumbers);
+          const BathsInUrl =
+            bathroomsNumbers.length === 0
+              ? "all"
+              : JSON.stringify(bathroomsNumbers);
+          const minPriceInUrl = minPrice === null ? "min" : minPrice;
+          const maxPriceInUrl = maxPrice === null ? "max" : maxPrice;
+          if (rentType !== rentTypeInitialValue) {
+            navigate({
+              pathname: `/${rentType}`,
+              search: createSearchParams({
+                bor: rentType,
+                type: apartmentTypeInUrl,
+                beds: bedsInUrl,
+                baths: BathsInUrl,
+                minP: minPriceInUrl,
+                maxP: maxPriceInUrl,
+              }).toString(),
+            });
+          } else {
+            props.getValues(resData);
 
-          const text = `${location.pathname}?bor=${rentType}&type=${apartmentTypeInUrl}&beds=${bedsInUrl}&baths=${BathsInUrl}&minP=${minPriceInUrl}&maxP=${maxPriceInUrl}`;
-          window.history.replaceState(null, "", text);
-        }
-      })
-      .then(() => {
-        // if (Array.isArray(rentType) && rentType[0] !== rentTypeInitialValue) {
-        //   navigate(`/${rentType}${location.search}`);
-        // }
-        // 7ot el props.getvalues gwa el if
-      });
+            const text = `${location.pathname}?bor=${rentType}&type=${apartmentTypeInUrl}&beds=${bedsInUrl}&baths=${BathsInUrl}&minP=${minPriceInUrl}&maxP=${maxPriceInUrl}`;
+            window.history.replaceState(null, "", text);
+          }
+        })
+        .then(() => {
+          // if (Array.isArray(rentType) && rentType[0] !== rentTypeInitialValue) {
+          //   navigate(`/${rentType}${location.search}`);
+          // }
+          // 7ot el props.getvalues gwa el if
+        });
+    }, 100);
   };
   // const bedroomHandler = (e) => {
   //   let roomnumbers = [];
@@ -231,7 +232,13 @@ function FilterBar(props) {
 
   return (
     <section className="filterBar">
-      <form className="filterBar-inputsContainer" onSubmit={submitFormHandler}>
+      <form
+        className="filterBar-inputsContainer"
+        onSubmit={submitFormHandler}
+        onKeyPress={(e) => {
+          e.key === "Enter" && e.preventDefault();
+        }}
+      >
         <div className="filterBar-inputsContainer-locationInput">
           {/* <PlacesAutocomplete
             value={enteredLocation}
