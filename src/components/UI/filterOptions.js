@@ -63,14 +63,18 @@ function FilterOptions(props) {
     bathroomsInitialValue === null ? [] : bathroomsInitialValue
   );
 
-  const [minPrice, setMinPrice] = useState(null);
-  const [maxPrice, setMaxPrice] = useState(null);
+  const [minPrice, setMinPrice] = useState(
+    searchParams.get("minP") === "min" ? null : searchParams.get("minP")
+  );
+
+  const [maxPrice, setMaxPrice] = useState(
+    searchParams.get("maxP") === "max" ? null : searchParams.get("maxP")
+  );
   const [dropdown, toggleDropDown] = useState(false);
   const priceButtonRef = useRef();
   const location = useLocation();
   const bedroomRef = useRef();
   const bathroomRef = useRef();
-
   const apartmentOptions = [
     { value: "apartment", label: "Apartment" },
     { value: "studio", label: "Studio" },
@@ -325,7 +329,11 @@ function FilterOptions(props) {
             >
               <input
                 onBlur={(e) => {
-                  if (+minPrice > +maxPrice && maxPriceIsTouched) {
+                  if (
+                    +minPrice > +maxPrice &&
+                    maxPriceIsTouched &&
+                    maxPrice !== null
+                  ) {
                     setMaxPrice((prevState) => {
                       setMinPrice(prevState);
                       return minPrice;
@@ -346,7 +354,11 @@ function FilterOptions(props) {
               <span data-close-drodown="false">&#8212;</span>
               <input
                 onBlur={(e) => {
-                  if (+minPrice > +maxPrice && maxPriceIsTouched) {
+                  if (
+                    +minPrice > +maxPrice &&
+                    maxPriceIsTouched &&
+                    maxPrice !== null
+                  ) {
                     setMaxPrice((prevState) => {
                       setMinPrice(prevState);
                       return minPrice;

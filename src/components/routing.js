@@ -1,4 +1,5 @@
 import React, { useContext } from "react";
+import { useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import { Routes, Route } from "react-router-dom";
 import CommericalSalePage from "../pages/commercialSalePage";
@@ -15,7 +16,11 @@ const Login = React.lazy(() => import("../pages/login"));
 const Signup = React.lazy(() => import("../pages/signup"));
 const Home = React.lazy(() => import("../pages/homePage"));
 function Routing() {
-  const isAuth = useContext(LoginContext).isAuth;
+  let isAuth = useContext(LoginContext).isAuth;
+  // let isAuth;
+  // if (localStorage.getItem("token")) {
+  //   isAuth = true;
+  // }
 
   return (
     <React.Suspense fallback="loading">

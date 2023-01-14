@@ -7,14 +7,13 @@ import { BsWhatsapp } from "react-icons/bs";
 import { AiOutlineHeart } from "react-icons/ai";
 import { AiFillHeart } from "react-icons/ai";
 function ApartmentPriceDetailsAbs() {
-  const [showCurrency, setShowCurrency] = useState(false);
-  const [currency, setCurrency] = useState("EGP");
-  const [likedApartment, setLikedApartment] = useState(false);
-
   const apartment = useContext(LoginContext).singleApartment;
+  const [showCurrency, setShowCurrency] = useState(false);
+
+  const [likedApartment, setLikedApartment] = useState(false);
+  const [price, setPrice] = useState(formatPrice(apartment.price));
   const btnRef = useRef();
   //   localStorage.setItem("likedApartments", JSON.stringify(["1", "2", "3"]));
-
   /////////Liking post/////////////////////////////////////
   useEffect(() => {
     if (!JSON.parse(localStorage.getItem("likedApartments"))) {
@@ -67,7 +66,38 @@ function ApartmentPriceDetailsAbs() {
     return () => document.removeEventListener("click", hideCurrencyDropDown);
   });
   if (apartment._id) {
-    let price = formatPrice(apartment.price, currency);
+    const changeCurrency = (from, to, amount) => {
+      if (to === "egp") {
+        setPrice(formatPrice(apartment.price));
+        return;
+      }
+      const graphqlQuery = {
+        query: ` query currencyChanger($from:String!,$to:String!,$amount:Int!) {
+          currencyChanger(from:$from to:$to amount: $amount)
+          {
+            price
+          }
+        }`,
+        variables: {
+          from,
+          to,
+          amount,
+        },
+      };
+      fetch("http://localhost:8080/graphql", {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json",
+        },
+        body: JSON.stringify(graphqlQuery),
+      })
+        .then((res) => {
+          return res.json();
+        })
+        .then((resData) => {
+          setPrice(formatPrice(resData.data.currencyChanger.price, to));
+        });
+    };
 
     return (
       <div className="priceAreaAbs">
@@ -84,7 +114,7 @@ function ApartmentPriceDetailsAbs() {
                   <li
                     className="currency-item currency-item-egp"
                     onClick={(e) => {
-                      setCurrency(e.target.textContent);
+                      changeCurrency("egp", "egp", apartment.price);
                     }}
                   >
                     EGP
@@ -92,7 +122,7 @@ function ApartmentPriceDetailsAbs() {
                   <li
                     className="currency-item currency-item-dollar"
                     onClick={(e) => {
-                      setCurrency(e.target.textContent);
+                      changeCurrency("egp", "usd", apartment.price);
                     }}
                   >
                     USD
@@ -100,7 +130,7 @@ function ApartmentPriceDetailsAbs() {
                   <li
                     className="currency-item currency-item-euro"
                     onClick={(e) => {
-                      setCurrency(e.target.textContent);
+                      changeCurrency("egp", "eur", apartment.price);
                     }}
                   >
                     EUR
@@ -108,7 +138,7 @@ function ApartmentPriceDetailsAbs() {
                   <li
                     className="currency-item currency-item-gbp"
                     onClick={(e) => {
-                      setCurrency(e.target.textContent);
+                      changeCurrency("egp", "gbp", apartment.price);
                     }}
                   >
                     GBP

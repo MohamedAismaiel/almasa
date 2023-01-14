@@ -34,6 +34,7 @@ nav {
   border-top: 1px solid $border-color;
   margin-bottom: 3rem;
 }
+
 .nav-links {
   font-size: 1.4rem;
   margin: 0 auto;
@@ -163,6 +164,23 @@ nav {
     span {
       transform: translateY(-0.5rem);
     }
+  }
+  &-mapClose {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 3.5rem;
+    height: 3rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.5rem 0.5rem rgb(0 0 0 / 20%);
+    background-color: #ffffff;
+    border-color: #ccc;
+    font-size: 2.5rem;
+    color: black;
+    position: absolute;
+    top: 1rem;
+    right: 2rem;
+    z-index: 400;
   }
 }
 
@@ -594,6 +612,18 @@ nav {
     }
   }
 }
+.leaflet-container {
+  width: 75vw;
+  height: 75vh;
+  border-radius: 1.5rem;
+}
+.modal-map {
+  position: fixed;
+  width: min-content;
+  top: 10%;
+  left: 10%;
+  z-index: 30;
+}
 .detailsArea {
   width: 102.4rem;
   position: relative;
@@ -996,10 +1026,13 @@ nav {
     gap: 1rem;
     flex-wrap: wrap;
     &-locationInput {
-      height: 4rem;
-      z-index: 12;
-      width: 35rem;
-      border-radius: 0.3rem;
+      .geoapify-autocomplete-input {
+        height: 4rem;
+        z-index: 12;
+        width: 35rem;
+        border-radius: 0.3rem;
+        width: 35rem;
+      }
       cursor: pointer;
       div {
         input {

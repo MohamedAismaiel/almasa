@@ -5,13 +5,17 @@ import PlacesAutocomplete, {
   geocodeByAddress,
   getLatLng,
 } from "react-places-autocomplete";
-
+import {
+  GeoapifyGeocoderAutocomplete,
+  GeoapifyContext,
+} from "@geoapify/react-geocoder-autocomplete";
+import "@geoapify/geocoder-autocomplete/styles/minimal.css";
 function CreateAppartmentForm(props) {
   const [enteredType, setEnteredType] = useState("apartment");
   const [enteredRentOrSale, setEnteredRentOrSale] = useState("rent");
   const [enteredIsAvaliable, setEnteredIsAvaliable] = useState("yes");
   const [enteredPrice, setEnteredPrice] = useState("");
-  const [enteredLocation, setEnteredLocation] = useState("");
+  const [enteredLocation, setEnteredLocation] = useState({});
   const [enteredSpace, setEnteredSpace] = useState("");
   const [spaceUnit, setSpaceUnit] = useState(`sqm`);
   const [enteredRooms, setEnteredRooms] = useState("");
@@ -30,6 +34,7 @@ function CreateAppartmentForm(props) {
   const [amenities, setList] = useState([]);
   // const [coordinates, setCoordinates] = useState({ lat: null, lng: null });
   const amenitie = useContext(LoginContext).amenitie;
+  const logout = useContext(LoginContext).logoutHandler;
   // const id = [
   //   Date.now() + Math.random(),
   //   Date.now() + Math.random(),
@@ -49,6 +54,12 @@ function CreateAppartmentForm(props) {
   };
 
   const onSubmitHandler = (e) => {
+    if (!localStorage.getItem("token")) {
+      logout();
+      const error = new Error("Not Authenticated");
+      throw error;
+    }
+
     props.createPostHandler(e, {
       enteredType,
       enteredRentOrSale,
@@ -82,7 +93,28 @@ function CreateAppartmentForm(props) {
   //   setEnteredLocation(value);
   //   setCoordinates(latlng);
   // };
+  function onPlaceSelect(value) {
+    value.properties.name_international === undefined
+      ? setEnteredLocation({
+          address: value.properties.address_line1,
+          city: value.properties.state,
+          country: value.properties.country,
+          lat: value.properties.lat,
+          lon: value.properties.lon,
+        })
+      : setEnteredLocation({
+          address: value.properties.address_line1,
+          city: value.properties.state,
+          country: value.properties.country,
+          ArName: value.properties.name_international.ar,
+          lat: value.properties.lat,
+          lon: value.properties.lon,
+        });
+  }
 
+  function onSuggectionChange(value) {
+    console.log(value);
+  }
   return (
     <form
       method="post"
@@ -119,11 +151,20 @@ function CreateAppartmentForm(props) {
           </div>
         )}
       </PlacesAutocomplete> */}
+      <GeoapifyContext apiKey="d58fcb81a23e4d69b4496ae7bcb6f54e">
+        <GeoapifyGeocoderAutocomplete
+          placeholder="Enter address here"
+          limit={5}
+          placeSelect={onPlaceSelect}
+          suggestionsChange={onSuggectionChange}
+          skipSelectionOnArrowKey={true}
+        />
+      </GeoapifyContext>
       <label>location</label>
       <input
         type="text"
         onChange={(e) => {
-          setEnteredLocation(e.target.value);
+          // setEnteredLocation(e.target.value);
         }}
       />
 

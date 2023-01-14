@@ -25,7 +25,13 @@ function ApartmentDetail() {
           isAvaliable
           price
           creator{name}
-          location
+          location {
+            city
+            country
+            address
+            lat
+            lon
+          }
           space
           rooms
           description

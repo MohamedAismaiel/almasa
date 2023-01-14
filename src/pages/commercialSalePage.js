@@ -37,7 +37,7 @@ function CommericalSalePage() {
     const maxPrice =
       searchParams.get("maxP") === "max" || searchParams.get("maxP") === null
         ? null
-        : searchParams.get("minP");
+        : searchParams.get("maxP");
 
     // const rentType = JSON.stringify([searchParams.get("bor")]);
     const rentType = JSON.stringify(

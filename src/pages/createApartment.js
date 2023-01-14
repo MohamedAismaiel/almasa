@@ -48,6 +48,7 @@ function CreateAppartment(props) {
       .then((data) => {
         const photos = JSON.stringify(data.images);
         const amenitiess = JSON.stringify(amenities);
+        const location = JSON.stringify(enteredLocation);
         // const coordinatess = JSON.stringify(coordinates);
         const graphqlQuery = {
           query: `mutation CreateNewAppartment($type:String!,$rentOrSale:String!,$isAvaliable:String! $price:Int!,$location:String!,$space:Int!,$rooms:Int!,$bathrooms:Int!,$description:String!,$finishing:String!,$photos:String!,$paymentType:String!,$deliveryDate:String!,$mainHeader:String!,$spaceUnit:String!,$amenities:String,$refrenceName:String! ,) 
@@ -60,7 +61,9 @@ function CreateAppartment(props) {
               isAvaliable
               price
               creator{name}
-              location
+              location {
+                city
+              }
               space
               rooms
               description
@@ -84,7 +87,7 @@ function CreateAppartment(props) {
             rentOrSale: enteredRentOrSale,
             isAvaliable: enteredIsAvaliable,
             price: +enteredPrice,
-            location: enteredLocation,
+            location: location,
             space: +enteredSpace,
             rooms: +enteredRooms,
             bathrooms: +enteredBathrooms,

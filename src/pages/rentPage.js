@@ -37,7 +37,7 @@ function RentPage() {
     const maxPrice =
       searchParams.get("maxP") === "max" || searchParams.get("maxP") === null
         ? null
-        : searchParams.get("minP");
+        : searchParams.get("maxP");
 
     const rentType = JSON.stringify(location.pathname.split("/")[1]);
 
@@ -52,7 +52,11 @@ function RentPage() {
         rentOrSale
         isAvaliable
         price
-        location
+        location {
+          city
+          country
+          address
+        }
         space
         rooms
         description

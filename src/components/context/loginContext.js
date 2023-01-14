@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useEffect } from "react";
 
 export const LoginContext = React.createContext({
   isAuth: false,
@@ -13,6 +14,8 @@ export const LoginContext = React.createContext({
   hideImageGallery: () => {},
   showEmailForm: () => {},
   hideEmailForm: () => {},
+  showMap: () => {},
+  hideMap: () => {},
   setDetailedApartment: () => {},
   setCardClickedApartment: () => {},
   token: null,
@@ -25,7 +28,8 @@ export const LoginContext = React.createContext({
   furnishedAmentites: [],
   viewAmentites: [],
   amenitie: [],
-  emailForm: true,
+  emailForm: false,
+  mapShown: false,
 });
 
 const LoginProvider = (props) => {
@@ -36,6 +40,7 @@ const LoginProvider = (props) => {
   const [apartments, setApartments] = useState([]);
   const [imageIsShown, setImageIsShown] = useState(false);
   const [emailForm, setemailForm] = useState(false);
+  const [mapShown, setMapShown] = useState(false);
   const [cardClickedApartment, setCardClickedApartment] = useState(null);
   const [singleApartment, setSingleApartment] = useState({});
 
@@ -52,6 +57,7 @@ const LoginProvider = (props) => {
     "Open view",
     "Street view",
   ];
+
   const amenitie = [
     // { name: "Private garden", id: Date.now() + Math.random() },
     // { name: "Balcony", id: Date.now() + Math.random() },
@@ -92,6 +98,12 @@ const LoginProvider = (props) => {
   };
   const hideEmailForm = () => {
     setemailForm(false);
+  };
+  const showMap = () => {
+    setMapShown(true);
+  };
+  const hideMap = () => {
+    setMapShown(false);
   };
   const setDetailedApartment = (apartment) => {
     setSingleApartment(apartment);
@@ -158,6 +170,9 @@ const LoginProvider = (props) => {
         emailForm,
         showEmailForm,
         hideEmailForm,
+        mapShown,
+        hideMap,
+        showMap,
         setCardApartment,
         cardClickedApartment,
       }}

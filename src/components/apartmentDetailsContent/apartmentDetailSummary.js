@@ -12,15 +12,15 @@ function ApartmentDetailsSummary() {
   const apartment = useContext(LoginContext).singleApartment;
 
   if (apartment._id) {
-    const locationEdited =
-      apartment.location.split(",").slice(0, 1) +
-      apartment.location.split(",").slice(-1);
+    // const locationEdited =
+    //   apartment.location.split(",").slice(0, 1) +
+    //   apartment.location.split(",").slice(-1);
 
-    console.log(locationEdited);
     return (
       <div className="detailsArea">
         <p className="detailsArea-summary">
-          {apartment.type} for {apartment.rentOrSale} in {locationEdited}
+          {apartment.type} for {apartment.rentOrSale} in{" "}
+          {apartment.location[0].address}, {apartment.location[0].city}
         </p>
         <p className="detailsArea-mainHeader">{apartment.mainHeader}</p>
         <p className="detailsArea-deliverDate">

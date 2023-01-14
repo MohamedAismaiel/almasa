@@ -14,12 +14,10 @@ function ApartmentCard(props) {
   const [likedApartment, setLikedApartment] = useState(false);
   const [call, showNumber] = useState("Call");
   const [refrence, showRefrence] = useState(false);
-  let locationEdited =
-    props.location.split(",").slice(0, 1) + props.location.split(",").slice(-1);
 
-  if (props.location.split(",").length <= 1) {
-    locationEdited = props.location;
-  }
+  // if (props.location.split(",").length <= 1) {
+  //   locationEdited = props.location;
+  // }
 
   const [appear, setAppear] = useState(1);
 
@@ -62,6 +60,7 @@ function ApartmentCard(props) {
     if (likedApartments === null) {
       likedApartments = [];
     }
+
     likedApartmentId = likedApartments.filter((p) => p === props.id);
     if (likedApartmentId.length > 0) {
       likedApartments = likedApartments.filter((p) => p !== props.id);
@@ -137,7 +136,7 @@ function ApartmentCard(props) {
           <div className="card-detailsbox">
             <p className="card-detailsbox-price">{price}</p>
             <p className="card-detailsbox-paymentType">{props.paymentType}</p>
-            <p className="card-detailsbox-brief">{`${props.type} for ${props.rentOrSale} in ${locationEdited}`}</p>
+            <p className="card-detailsbox-brief">{`${props.type} for ${props.rentOrSale} in ${props.location[0].address}`}</p>
             <p className="card-detailsbox-space">
               {`${props.type}`}&nbsp;||&nbsp;{`${props.rooms}`}&nbsp;
               <BiBed size={18} />
@@ -149,7 +148,7 @@ function ApartmentCard(props) {
 
             <p className="card-detailsbox-location">
               <IoLocationSharp size={16} />
-              {props.location}
+              {`${props.location[0].address}, ${props.location[0].city}, ${props.location[0].country}`}
             </p>
             <p className="card-detailsbox-deliveryDate">
               Delivery date: <span>{props.deliveryDate}</span>

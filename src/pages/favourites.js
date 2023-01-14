@@ -9,6 +9,7 @@ function FavouritesPage() {
     if (!likedApartmentsId) {
       return;
     }
+
     const abort = new AbortController();
     const graphqlQuery = {
       query: `query favouriteAppartments($id:String!) 
@@ -19,7 +20,11 @@ function FavouritesPage() {
               type
               rentOrSale
               price
-              location
+              location {
+                city
+                country
+                address
+              }
               space
               rooms
               description

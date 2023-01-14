@@ -12,7 +12,11 @@ import {
   useSearchParams,
   createSearchParams,
 } from "react-router-dom";
-
+import {
+  GeoapifyGeocoderAutocomplete,
+  GeoapifyContext,
+} from "@geoapify/react-geocoder-autocomplete";
+import "@geoapify/geocoder-autocomplete/styles/minimal.css";
 function FilterBar(props) {
   const [coordinates, setCoordinates] = useState({ lat: null, lng: null });
   const [enteredLocation, setEnteredLocation] = useState("");
@@ -230,6 +234,14 @@ function FilterBar(props) {
   //   setBathroomsNumbers(roomnumbers);
   // };
 
+  function onPlaceSelect(value) {
+    console.log(value);
+  }
+
+  function onSuggectionChange(value) {
+    console.log(value);
+  }
+
   return (
     <section className="filterBar">
       <form
@@ -240,6 +252,15 @@ function FilterBar(props) {
         }}
       >
         <div className="filterBar-inputsContainer-locationInput">
+          <GeoapifyContext apiKey="d58fcb81a23e4d69b4496ae7bcb6f54e">
+            <GeoapifyGeocoderAutocomplete
+              placeholder="Enter address here"
+              limit={5}
+              placeSelect={onPlaceSelect}
+              suggestionsChange={onSuggectionChange}
+              skipSelectionOnArrowKey={true}
+            />
+          </GeoapifyContext>
           {/* <PlacesAutocomplete
             value={enteredLocation}
             onChange={setEnteredLocation}
