@@ -16,7 +16,9 @@ import {
   MdPool as Privatepool,
   MdElevator as Elevator,
   MdOutlineSportsTennis as Clubaccess,
+  MdOutlineChair as Furniture,
 } from "react-icons/md";
+import { GrOverview as ApartmentView } from "react-icons/gr";
 function ApartmentAmenities() {
   const apartment = useContext(LoginContext).singleApartment;
   if (apartment.amenities) {
@@ -28,6 +30,22 @@ function ApartmentAmenities() {
             let Svg;
             if (amenity === "Private garden") {
               Svg = Privategarden;
+            }
+            if (
+              amenity === "furnished" ||
+              "partly furnished" ||
+              "unfurnished"
+            ) {
+              Svg = Furniture;
+            }
+            if (
+              amenity === "Garden view" ||
+              "Sea view" ||
+              "Park view" ||
+              "Open view" ||
+              "Street view"
+            ) {
+              Svg = ApartmentView;
             }
             if (amenity === "Balcony") {
               Svg = Balcony;

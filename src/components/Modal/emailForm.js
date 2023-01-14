@@ -17,6 +17,7 @@ function EmailForm() {
   const [emailMessage, setEmailMessage] = useState(
     `Hello, I am interested in this property with the reference code: (${apartment.refrenceName}) on Al-Masa website, kindly contact me. thanks`
   );
+
   const [enteredPhoneNumberIsTouched, setEnteredPhoneNumberIsTouched] =
     useState(false);
 

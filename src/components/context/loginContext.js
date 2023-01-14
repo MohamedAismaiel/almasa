@@ -46,32 +46,14 @@ const LoginProvider = (props) => {
 
   const furnishedAmentites = ["furnished", "unfurnished", "partly furnished"];
   const viewAmentites = [
-    // { name: "Sea view", id: Date.now() + Math.random() },
-    // { name: "Garden view", id: Date.now() + Math.random() },
-    // { name: "Park view", id: Date.now() + Math.random() },
-    // { name: "Open view", id: Date.now() + Math.random() },
-    // { name: "Street view", id: Date.now() + Math.random() },
-    "Sea view",
     "Garden view",
+    "Sea view",
     "Park view",
     "Open view",
     "Street view",
   ];
 
   const amenitie = [
-    // { name: "Private garden", id: Date.now() + Math.random() },
-    // { name: "Balcony", id: Date.now() + Math.random() },
-    // { name: "Parking area", id: Date.now() + Math.random() },
-    // { name: "Pets allowed", id: Date.now() + Math.random() },
-    // { name: "Security", id: Date.now() + Math.random() },
-    // { name: "Jacuzzi", id: Date.now() + Math.random() },
-    // { name: "Private pool", id: Date.now() + Math.random() },
-    // { name: "Elevator", id: Date.now() + Math.random() },
-    // { name: "Air conditioned", id: Date.now() + Math.random() },
-    // { name: "Wifi", id: Date.now() + Math.random() },
-    // { name: "Beach access", id: Date.now() + Math.random() },
-    // { name: "Gym access", id: Date.now() + Math.random() },
-    // { name: "Club access", id: Date.now() + Math.random() },
     "Private garden",
     "Balcony",
     "Parking area",

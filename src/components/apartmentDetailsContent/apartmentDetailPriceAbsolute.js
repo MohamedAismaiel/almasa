@@ -1,11 +1,9 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { LoginContext } from "../context/loginContext";
 import { formatPrice } from "../UI/numberFormatter";
-import { RiPhoneFill } from "react-icons/ri";
-import { MdEmail } from "react-icons/md";
-import { BsWhatsapp } from "react-icons/bs";
 import { AiOutlineHeart } from "react-icons/ai";
 import { AiFillHeart } from "react-icons/ai";
+import { IoMdCall, IoMdMail, IoLogoWhatsapp } from "react-icons/io";
 function ApartmentPriceDetailsAbs() {
   const apartment = useContext(LoginContext).singleApartment;
   const [showCurrency, setShowCurrency] = useState(false);
@@ -13,6 +11,10 @@ function ApartmentPriceDetailsAbs() {
   const [likedApartment, setLikedApartment] = useState(false);
   const [price, setPrice] = useState(formatPrice(apartment.price));
   const btnRef = useRef();
+  const showEmailForm = useContext(LoginContext).showEmailForm;
+  const setCardClickedApartment = useContext(LoginContext).setCardApartment;
+  const [call, showNumber] = useState("Call");
+  const [refrence, showRefrence] = useState(false);
   //   localStorage.setItem("likedApartments", JSON.stringify(["1", "2", "3"]));
   /////////Liking post/////////////////////////////////////
   useEffect(() => {
@@ -148,12 +150,26 @@ function ApartmentPriceDetailsAbs() {
             </button>
           </div>
           <div className="priceAreaAbs-part1-buttons">
-            <button className="button button-call button-call-detailed">
-              <RiPhoneFill size={16} />
-              <span>Call</span>
+            <button
+              className="button button-call button-call-detailed"
+              onClick={(e) => {
+                e.preventDefault();
+                showNumber("0123456789");
+                showRefrence(!refrence);
+              }}
+            >
+              <IoMdCall size={16} />
+              <span>{call}</span>
             </button>
-            <button className="button button-email button-email-detailed">
-              <MdEmail size={16} />
+            <button
+              className="button button-email button-email-detailed"
+              onClick={(e) => {
+                e.preventDefault();
+                setCardClickedApartment(apartment);
+                showEmailForm();
+              }}
+            >
+              <IoMdMail size={16} />
               <span>Email</span>
             </button>
             <a
@@ -162,10 +178,28 @@ function ApartmentPriceDetailsAbs() {
               rel="noreferrer"
               className="button button-whatsapp button-whatsapp-detailed"
             >
-              <BsWhatsapp size={16} />
+              <IoLogoWhatsapp size={16} />
               <span>WhatsApp</span>
             </a>
-          </div>
+          </div>{" "}
+          {refrence && (
+            <div className=" priceAreaAbs-part1-buttons-refrenceAreaAbs">
+              <p className=" priceAreaAbs-part1-buttons-refrenceAreaAbs-mention">
+                Mention the refrence
+              </p>
+              <p className=" priceAreaAbs-part1-buttons-refrenceAreaAbs-refrence">
+                "El Masa {apartment.refrenceName}"
+              </p>
+              <span
+                className=" priceAreaAbs-part1-buttons-refrenceAreaAbs-x"
+                onClick={(e) => {
+                  showRefrence(false);
+                }}
+              >
+                X
+              </span>
+            </div>
+          )}
         </div>
         <div className="priceAreaAbs-part2" onClick={saveApartment}>
           {likedApartment ? (

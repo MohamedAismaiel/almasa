@@ -21,14 +21,14 @@ function CreateAppartmentForm(props) {
   const [enteredRooms, setEnteredRooms] = useState("");
   const [enteredBathrooms, setEnteredBathrooms] = useState("");
   const [enteredDescription, setEnteredDescription] = useState("");
-  const [enteredFinishing, setEnteredUFinishing] = useState("unfinished");
+  const [enteredFinishing, setEnteredFinishing] = useState("unfinished");
   const [paymentType, setPaymentType] = useState("");
   const [deliveryDate, setDeliveryDate] = useState("");
   const [mainHeader, setMainHeader] = useState("");
   const [image, setImage] = useState();
   const [furnishedValue, setFurnishedValue] = useState("furnished");
   const [refrenceName, setRefrenceName] = useState("");
-  const [viewValue, setViewValue] = useState("furnished");
+  const [viewValue, setViewValue] = useState("garden view");
   const furnished = useContext(LoginContext).furnishedAmentites;
   const viewAmentites = useContext(LoginContext).viewAmentites;
   const [amenities, setList] = useState([]);
@@ -152,6 +152,7 @@ function CreateAppartmentForm(props) {
         )}
       </PlacesAutocomplete> */}
       <GeoapifyContext apiKey="d58fcb81a23e4d69b4496ae7bcb6f54e">
+        <label>location</label>
         <GeoapifyGeocoderAutocomplete
           placeholder="Enter address here"
           limit={5}
@@ -160,13 +161,6 @@ function CreateAppartmentForm(props) {
           skipSelectionOnArrowKey={true}
         />
       </GeoapifyContext>
-      <label>location</label>
-      <input
-        type="text"
-        onChange={(e) => {
-          // setEnteredLocation(e.target.value);
-        }}
-      />
 
       <div>
         <label htmlFor="type">Choose apartment type</label>
@@ -298,7 +292,7 @@ function CreateAppartmentForm(props) {
         <select
           id="finishing"
           onChange={(e) => {
-            setEnteredUFinishing(e.target.value);
+            setEnteredFinishing(e.target.value);
           }}
         >
           <option value="unfinished">Unfinished</option>
@@ -328,15 +322,26 @@ function CreateAppartmentForm(props) {
       <br />
       <input
         type="checkbox"
-        id="furniture"
-        name="furniture"
+        id="styling"
+        name={furnishedValue}
         value={furnishedValue}
-        onChange={(e) => {}}
+        onChange={(e) => {
+          if (e.target.checked) {
+            if (e.target.checked) {
+              setList((oldList) => {
+                return [...oldList, viewValue];
+              });
+            } else {
+              const name = e.target.getAttribute("name");
+              setList(amenities.filter((item) => item !== name));
+            }
+          }
+        }}
       />
       <label htmlFor="furniture">
         Furnishing style
         <select
-          id="view"
+          id="styling"
           onChange={(e) => {
             setFurnishedValue(e.target.value);
           }}
@@ -353,12 +358,21 @@ function CreateAppartmentForm(props) {
       <input
         type="checkbox"
         id="view"
-        name="view"
+        name={viewValue}
         value={viewValue}
-        onChange={(e) => {}}
+        onChange={(e) => {
+          if (e.target.checked) {
+            setList((oldList) => {
+              return [...oldList, viewValue];
+            });
+          } else {
+            const name = e.target.getAttribute("name");
+            setList(amenities.filter((item) => item !== name));
+          }
+        }}
       />
       <label htmlFor="view">
-        Furnishing style
+        apartment view
         <select
           id="view"
           onChange={(e) => {
@@ -374,7 +388,6 @@ function CreateAppartmentForm(props) {
           })}
         </select>
       </label>
-      {/* <AmenitiessMemo  /> */}
       {amenitie.map((p, i) => {
         return (
           <div key={i}>
@@ -385,12 +398,11 @@ function CreateAppartmentForm(props) {
               value={p}
               onChange={(e) => {
                 if (e.target.checked) {
-                  setList((oldList) => [...oldList, p]);
-                  // amenities.push(e.target.value);
+                  setList((oldList) => {
+                    console.log(oldList);
+                    return [...oldList, p];
+                  });
                 } else {
-                  // amenities = amenities.filter(
-                  //   (word) => word !== e.target.value
-                  // );
                   const name = e.target.getAttribute("name");
                   setList(amenities.filter((item) => item !== name));
                 }

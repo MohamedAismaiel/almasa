@@ -139,6 +139,11 @@ function FilterBar(props) {
           isAvaliable
           price
           location
+          {
+            address
+            city
+            country
+          }
           space
           rooms
           description

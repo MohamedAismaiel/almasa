@@ -161,6 +161,7 @@ nav {
     text-align: center;
     display: flex;
     align-content: center;
+    z-index: 30;
     span {
       transform: translateY(-0.5rem);
     }
@@ -223,32 +224,32 @@ nav {
       border-radius: 0.4rem;
       z-index: 20;
       border: 1px solid $border-color;
-      &::after {
-        content: "";
-        position: absolute;
-        bottom: 0;
-        left: 50%;
-        width: 0;
-        height: 0;
-        border: 12px solid transparent;
-        border-top-color: white;
-        border-bottom: 0;
-        margin-left: -12px;
-        margin-bottom: -11px;
-      }
-      &::before {
-        content: "";
-        position: absolute;
-        bottom: -1px;
-        left: 49.4%;
-        width: 0;
-        height: 0;
-        border: 12px solid transparent;
-        border-top-color: $border-color;
-        border-bottom: 0;
-        margin-left: -10.5px;
-        margin-bottom: -12px;
-      }
+      // &::after {
+      //   content: "";
+      //   position: absolute;
+      //   bottom: 0;
+      //   left: 50%;
+      //   width: 0;
+      //   height: 0;
+      //   border: 12px solid transparent;
+      //   border-top-color: white;
+      //   border-bottom: 0;
+      //   margin-left: -12px;
+      //   margin-bottom: -11px;
+      // }
+      // &::before {
+      //   content: "";
+      //   position: absolute;
+      //   bottom: -1px;
+      //   left: 49.4%;
+      //   width: 0;
+      //   height: 0;
+      //   border: 12px solid transparent;
+      //   border-top-color: $border-color;
+      //   border-bottom: 0;
+      //   margin-left: -10.5px;
+      //   margin-bottom: -12px;
+      // }
       &-mention {
         color: black;
         font-size: 1.5rem;
@@ -835,6 +836,13 @@ nav {
     &-buttons {
       display: flex;
       justify-content: space-between;
+
+      .button-call-detailed {
+        width: 13rem;
+      }
+      .button-email-detailed {
+        width: 10rem;
+      }
       .button-call-detailed,
       .button-email-detailed {
         font-size: 1.4rem;
@@ -842,7 +850,6 @@ nav {
         justify-content: center;
         gap: 0.5rem;
         color: white;
-        width: 11rem;
         height: 4rem;
         border-radius: 4px;
         background-color: rgb(239, 94, 78);
@@ -852,7 +859,7 @@ nav {
         height: 4rem;
         font-size: 1.4rem;
         display: flex;
-        width: 11rem;
+        width: min-content;
         justify-content: center;
         gap: 0.5rem;
         color: white;
@@ -861,6 +868,42 @@ nav {
         &:hover {
           color: white;
           background-color: rgb(37, 211, 102);
+        }
+      }
+      &-refrenceAreaAbs {
+        display: flex;
+        position: relative;
+        align-items: center;
+        justify-content: center;
+        row-gap: 1rem;
+        padding: 1rem;
+        margin-top: 2rem;
+        flex-direction: column;
+        width: 100%;
+        height: 8rem;
+        background-color: white;
+        border-radius: 0.4rem;
+
+        border: 1px solid $border-color;
+        &-mention {
+          color: black;
+          font-size: 1.5rem;
+          font-weight: 600;
+        }
+        &-refrence {
+          color: red;
+          font-size: 1.5rem;
+          font-weight: 600;
+          text-align: center;
+        }
+        &-x {
+          cursor: pointer;
+          position: absolute;
+          right: 1rem;
+          top: 1rem;
+          font-size: 1.7rem;
+          color: $text-color-1;
+          font-weight: 500;
         }
       }
     }
@@ -873,6 +916,7 @@ nav {
     right: 0.5rem;
     top: 3.5rem;
     background-color: white;
+
     &-item {
       cursor: pointer;
       font-size: 1.7rem;
