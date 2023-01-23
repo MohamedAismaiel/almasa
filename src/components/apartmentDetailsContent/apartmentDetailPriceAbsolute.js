@@ -10,11 +10,15 @@ function ApartmentPriceDetailsAbs() {
 
   const [likedApartment, setLikedApartment] = useState(false);
   const [price, setPrice] = useState(formatPrice(apartment.price));
-  const btnRef = useRef();
+  // const btnRef = useRef();
   const showEmailForm = useContext(LoginContext).showEmailForm;
   const setCardClickedApartment = useContext(LoginContext).setCardApartment;
   const [call, showNumber] = useState("Call");
   const [refrence, showRefrence] = useState(false);
+  const [usdPrice, setUSDPrice] = useState(null);
+  const [eurPrice, setEURPrice] = useState(null);
+  const [gbpPrice, setGBPPrice] = useState(null);
+  let egpPrice = formatPrice(apartment.price);
   //   localStorage.setItem("likedApartments", JSON.stringify(["1", "2", "3"]));
   /////////Liking post/////////////////////////////////////
   useEffect(() => {
@@ -31,6 +35,86 @@ function ApartmentPriceDetailsAbs() {
       localStorage.clear("likedApartments");
     }
   }, [setLikedApartment, likedApartment, apartment._id]);
+  useEffect(() => {
+    const graphqlQueryUSD = {
+      query: ` query currencyChanger($from:String!,$to:String!,$amount:Int!) {
+          currencyChanger(from:$from to:$to amount: $amount)
+          {
+            price
+          }
+        }`,
+      variables: {
+        from: "egp",
+        to: "usd",
+        amount: apartment.price,
+      },
+    };
+    fetch("http://localhost:8080/graphql", {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json",
+      },
+      body: JSON.stringify(graphqlQueryUSD),
+    })
+      .then((res) => {
+        return res.json();
+      })
+      .then((resData) => {
+        setUSDPrice(resData.data.currencyChanger.price);
+      });
+    const graphqlQueryEUR = {
+      query: ` query currencyChanger($from:String!,$to:String!,$amount:Int!) {
+            currencyChanger(from:$from to:$to amount: $amount)
+            {
+              price
+            }
+          }`,
+      variables: {
+        from: "egp",
+        to: "eur",
+        amount: apartment.price,
+      },
+    };
+    fetch("http://localhost:8080/graphql", {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json",
+      },
+      body: JSON.stringify(graphqlQueryEUR),
+    })
+      .then((res) => {
+        return res.json();
+      })
+      .then((resData) => {
+        setEURPrice(resData.data.currencyChanger.price);
+      });
+    const graphqlQueryGBP = {
+      query: ` query currencyChanger($from:String!,$to:String!,$amount:Int!) {
+              currencyChanger(from:$from to:$to amount: $amount)
+              {
+                price
+              }
+            }`,
+      variables: {
+        from: "egp",
+        to: "gbp",
+        amount: apartment.price,
+      },
+    };
+    fetch("http://localhost:8080/graphql", {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json",
+      },
+      body: JSON.stringify(graphqlQueryGBP),
+    })
+      .then((res) => {
+        return res.json();
+      })
+      .then((resData) => {
+        setGBPPrice(resData.data.currencyChanger.price);
+      });
+  }, []);
 
   const saveApartment = (p, s) => {
     let likedApartments = JSON.parse(localStorage.getItem("likedApartments"));
@@ -55,11 +139,11 @@ function ApartmentPriceDetailsAbs() {
   };
   ////////////////////////////////////////////////////////
 
-  const showCurrencyBox = () => {
+  const showCurrencyBox = (e) => {
     setShowCurrency((prev) => !prev);
   };
   const hideCurrencyDropDown = (e) => {
-    if (e.path[0] !== btnRef.current) {
+    if (e.target.dataset.curr !== "curr") {
       setShowCurrency(false);
     }
   };
@@ -68,38 +152,38 @@ function ApartmentPriceDetailsAbs() {
     return () => document.removeEventListener("click", hideCurrencyDropDown);
   });
   if (apartment._id) {
-    const changeCurrency = (from, to, amount) => {
-      if (to === "egp") {
-        setPrice(formatPrice(apartment.price));
-        return;
-      }
-      const graphqlQuery = {
-        query: ` query currencyChanger($from:String!,$to:String!,$amount:Int!) {
-          currencyChanger(from:$from to:$to amount: $amount)
-          {
-            price
-          }
-        }`,
-        variables: {
-          from,
-          to,
-          amount,
-        },
-      };
-      fetch("http://localhost:8080/graphql", {
-        method: "POST",
-        headers: {
-          "Content-type": "application/json",
-        },
-        body: JSON.stringify(graphqlQuery),
-      })
-        .then((res) => {
-          return res.json();
-        })
-        .then((resData) => {
-          setPrice(formatPrice(resData.data.currencyChanger.price, to));
-        });
-    };
+    // const changeCurrency = (from, to, amount) => {
+    //   if (to === "egp") {
+    //     setPrice(formatPrice(apartment.price));
+    //     return;
+    //   }
+    //   const graphqlQuery = {
+    //     query: ` query currencyChanger($from:String!,$to:String!,$amount:Int!) {
+    //       currencyChanger(from:$from to:$to amount: $amount)
+    //       {
+    //         price
+    //       }
+    //     }`,
+    //     variables: {
+    //       from,
+    //       to,
+    //       amount,
+    //     },
+    //   };
+    //   fetch("http://localhost:8080/graphql", {
+    //     method: "POST",
+    //     headers: {
+    //       "Content-type": "application/json",
+    //     },
+    //     body: JSON.stringify(graphqlQuery),
+    //   })
+    //     .then((res) => {
+    //       return res.json();
+    //     })
+    //     .then((resData) => {
+    //       setPrice(formatPrice(resData.data.currencyChanger.price, to));
+    //     });
+    // };
 
     return (
       <div className="priceAreaAbs">
@@ -110,13 +194,14 @@ function ApartmentPriceDetailsAbs() {
               className="button button-changeCurrency"
               onClick={showCurrencyBox}
             >
-              <span ref={btnRef}>...</span>
+              <span data-curr="curr">...</span>
               {showCurrency && (
                 <ul className="currency">
                   <li
                     className="currency-item currency-item-egp"
                     onClick={(e) => {
-                      changeCurrency("egp", "egp", apartment.price);
+                      // changeCurrency("egp", "egp", apartment.price);
+                      setPrice(egpPrice);
                     }}
                   >
                     EGP
@@ -124,7 +209,7 @@ function ApartmentPriceDetailsAbs() {
                   <li
                     className="currency-item currency-item-dollar"
                     onClick={(e) => {
-                      changeCurrency("egp", "usd", apartment.price);
+                      setPrice(formatPrice(usdPrice, "usd"));
                     }}
                   >
                     USD
@@ -132,7 +217,8 @@ function ApartmentPriceDetailsAbs() {
                   <li
                     className="currency-item currency-item-euro"
                     onClick={(e) => {
-                      changeCurrency("egp", "eur", apartment.price);
+                      // changeCurrency("egp", "eur", apartment.price);
+                      setPrice(formatPrice(eurPrice, "eur"));
                     }}
                   >
                     EUR
@@ -140,7 +226,8 @@ function ApartmentPriceDetailsAbs() {
                   <li
                     className="currency-item currency-item-gbp"
                     onClick={(e) => {
-                      changeCurrency("egp", "gbp", apartment.price);
+                      // changeCurrency("egp", "gbp", apartment.price);
+                      setPrice(formatPrice(gbpPrice, "gbp"));
                     }}
                   >
                     GBP

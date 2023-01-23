@@ -14,7 +14,7 @@ function ApartmentImages() {
             let classImageName = `image-grid-${i + 1}`;
             return (
               <LazyLoadImage
-                key={p.id}
+                key={p._id}
                 src={p.location}
                 height="100%"
                 width="30%"

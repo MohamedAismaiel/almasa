@@ -9,7 +9,7 @@ function ApartmentPriceDetails() {
   const [currency, setCurrency] = useState("EGP");
   const apartment = useContext(LoginContext).singleApartment;
   const btnRef = useRef();
-  const showCurrencyBox = () => {
+  const showCurrencyBox = (e) => {
     setShowCurrency((prev) => !prev);
   };
   const hideCurrencyDropDown = (e) => {
@@ -17,6 +17,7 @@ function ApartmentPriceDetails() {
       setShowCurrency(false);
     }
   };
+
   useEffect(() => {
     document.addEventListener("click", hideCurrencyDropDown);
     return () => document.removeEventListener("click", hideCurrencyDropDown);
@@ -30,10 +31,13 @@ function ApartmentPriceDetails() {
           <div className="priceArea-part1-pricebox">
             <p>{price}</p>
             <button
+              data-name="curr"
               className="button button-changeCurrency"
               onClick={showCurrencyBox}
             >
-              <span ref={btnRef}>...</span>
+              <span ref={btnRef} data-name="curr">
+                ...
+              </span>
               {showCurrency && (
                 <ul className="currency">
                   <li

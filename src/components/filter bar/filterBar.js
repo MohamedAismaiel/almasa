@@ -6,6 +6,7 @@ import PlacesAutocomplete, {
 } from "react-places-autocomplete";
 import { MdOutlineExpandMore } from "react-icons/md";
 import FilterOptions from "../UI/filterOptions";
+import AsyncSelect from "react-select/async";
 import {
   useLocation,
   useNavigate,
@@ -18,8 +19,8 @@ import {
 } from "@geoapify/react-geocoder-autocomplete";
 import "@geoapify/geocoder-autocomplete/styles/minimal.css";
 function FilterBar(props) {
-  const [coordinates, setCoordinates] = useState({ lat: null, lng: null });
-  const [enteredLocation, setEnteredLocation] = useState("");
+  // const [coordinates, setCoordinates] = useState({ lat: null, lng: null });
+  // const [enteredLocation, setEnteredLocation] = useState("");
 
   // const [dropdown, toggleDropDown] = useState(false);
   const [rentType, setRentType] = useState(null);
@@ -28,6 +29,7 @@ function FilterBar(props) {
   const [bathroomsNumbers, setBathroomsNumbers] = useState([]);
   const [minPrice, setMinPrice] = useState(null);
   const [maxPrice, setMaxPrice] = useState(null);
+  const [searchedLocation, setSearchedLocation] = useState(null);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -50,12 +52,12 @@ function FilterBar(props) {
     };
   }, [location.pathname]);
 
-  const handleSelect = async (value) => {
-    const results = await geocodeByAddress(value);
-    const latlng = await getLatLng(results[0]);
-    setEnteredLocation(value);
-    setCoordinates(latlng);
-  };
+  // const handleSelect = async (value) => {
+  //   const results = await geocodeByAddress(value);
+  //   const latlng = await getLatLng(results[0]);
+  //   setEnteredLocation(value);
+  //   setCoordinates(latlng);
+  // };
   const rentOptions = [
     { value: "rent", label: "Rent" },
     { value: "sale", label: "Sale" },
@@ -126,11 +128,14 @@ function FilterBar(props) {
     const bedroomsNumberStringfy = JSON.stringify(bedroomsNumbers);
     const rentTypeStringfy = JSON.stringify(rentType);
     const apartmentTypeStringfy = JSON.stringify(apartmentType);
+
+    const locationStringfy =
+      searchedLocation === null ? null : JSON.stringify(searchedLocation);
     setTimeout(() => {
       const graphqlQuery = {
-        query: `query filterdApartments($rentType:String,$apartmentType:String,$bedroomsNumbers:String,$bathroomsNumbers:String,$maxPrice:String,$minPrice:String)
+        query: `query filterdApartments($rentType:String,$apartmentType:String,$bedroomsNumbers:String,$bathroomsNumbers:String,$maxPrice:String,$minPrice:String,$location:String)
       {
-        filterdApartments(filteredApartmentsInput:{rentType:$rentType apartmentType:$apartmentType  bedroomsNumbers:$bedroomsNumbers  bathroomsNumbers:$bathroomsNumbers  maxPrice:$maxPrice minPrice:$minPrice }  )
+        filterdApartments(filteredApartmentsInput:{rentType:$rentType apartmentType:$apartmentType  bedroomsNumbers:$bedroomsNumbers  bathroomsNumbers:$bathroomsNumbers  maxPrice:$maxPrice minPrice:$minPrice location:$location }  )
 
         {
           _id
@@ -152,7 +157,7 @@ function FilterBar(props) {
           photos {
             location
             isLanding
-            id
+            _id
           }
           spaceUnit
           amenities
@@ -172,6 +177,7 @@ function FilterBar(props) {
           minPrice: minPrice,
           bathroomsNumbers: bathroomsNumberStringfy,
           bedroomsNumbers: bedroomsNumberStringfy,
+          location: locationStringfy,
         },
       };
       return fetch("http://localhost:8080/graphql", {
@@ -241,12 +247,44 @@ function FilterBar(props) {
 
   function onPlaceSelect(value) {
     console.log(value);
+    if (!value) {
+      setSearchedLocation(null);
+      return;
+    }
+
+    let updatedAdress;
+    let modifiedSearchedLocation;
+    value.properties.datasource.raw["name:en"] === undefined
+      ? (updatedAdress = value.properties.address_line1)
+      : (updatedAdress = value.properties.datasource.raw["name:en"]);
+    modifiedSearchedLocation = {
+      address: updatedAdress,
+      city: value.properties.state,
+    };
+    setSearchedLocation(modifiedSearchedLocation);
   }
 
   function onSuggectionChange(value) {
     console.log(value);
   }
 
+  function suggestionsFilter(suggestions) {
+    const processedStreets = [];
+
+    const filtered = suggestions.filter((value) => {
+      if (
+        /[\u0600-\u06FF]/.test(value.properties.address_line1) ||
+        value.properties.datasource.sourcename === "whosonfirst"
+      ) {
+        return false;
+      } else {
+        processedStreets.push(value.properties.street);
+        return true;
+      }
+    });
+
+    return filtered;
+  }
   return (
     <section className="filterBar">
       <form
@@ -260,12 +298,18 @@ function FilterBar(props) {
           <GeoapifyContext apiKey="d58fcb81a23e4d69b4496ae7bcb6f54e">
             <GeoapifyGeocoderAutocomplete
               placeholder="Enter address here"
-              limit={5}
+              limit={10}
+              lang={"en"}
               placeSelect={onPlaceSelect}
               suggestionsChange={onSuggectionChange}
               skipSelectionOnArrowKey={true}
+              filterByCountryCode={["eg", "ae"]}
+              suggestionsFilter={suggestionsFilter}
+              // value={"Madinaty, Cairo, Egypt"}
+              // type={"state"}
             />
           </GeoapifyContext>
+
           {/* <PlacesAutocomplete
             value={enteredLocation}
             onChange={setEnteredLocation}

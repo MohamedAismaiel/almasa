@@ -93,9 +93,10 @@ function ApartmentCard(props) {
                 transform: "translateX(0%)",
               };
             }
+
             return (
               <LazyLoadImage
-                key={p.id}
+                key={p._id}
                 alt="apartment"
                 src={p.location}
                 className={classImageName}

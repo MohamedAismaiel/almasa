@@ -63,7 +63,7 @@ function CommericalRentPage() {
         photos {
           location
           isLanding
-          id
+          _id
         }
         spaceUnit
         amenities

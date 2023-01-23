@@ -64,7 +64,7 @@ function CommericalSalePage() {
         photos {
           location
           isLanding
-          id
+          _id
         }
         spaceUnit
         amenities

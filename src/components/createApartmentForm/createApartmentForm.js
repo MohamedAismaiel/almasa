@@ -1,5 +1,5 @@
 import { useContext, useState } from "react";
-import { LoginContext } from "../context/loginContext";
+import LoginProvider, { LoginContext } from "../context/loginContext";
 import Button from "../UI/button";
 import PlacesAutocomplete, {
   geocodeByAddress,
@@ -94,27 +94,55 @@ function CreateAppartmentForm(props) {
   //   setCoordinates(latlng);
   // };
   function onPlaceSelect(value) {
-    value.properties.name_international === undefined
-      ? setEnteredLocation({
-          address: value.properties.address_line1,
+    let updatedAdress;
+    let location;
+
+    value.properties.datasource.raw["name:en"] === undefined
+      ? (updatedAdress = value.properties.address_line1)
+      : (updatedAdress = value.properties.datasource.raw["name:en"]);
+
+    value.properties.name_international.ar === undefined
+      ? (location = {
+          address: updatedAdress,
           city: value.properties.state,
           country: value.properties.country,
           lat: value.properties.lat,
           lon: value.properties.lon,
+          fullyFormated: value.properties.formatted,
         })
-      : setEnteredLocation({
-          address: value.properties.address_line1,
+      : (location = {
+          address: updatedAdress,
           city: value.properties.state,
           country: value.properties.country,
           ArName: value.properties.name_international.ar,
           lat: value.properties.lat,
           lon: value.properties.lon,
+          fullyFormated: value.properties.formatted,
         });
+    setEnteredLocation(location);
   }
 
   function onSuggectionChange(value) {
     console.log(value);
   }
+  function suggestionsFilter(suggestions) {
+    const processedStreets = [];
+
+    const filtered = suggestions.filter((value) => {
+      if (
+        /[\u0600-\u06FF]/.test(value.properties.address_line1) ||
+        value.properties.datasource.sourcename === "whosonfirst"
+      ) {
+        return false;
+      } else {
+        processedStreets.push(value.properties.street);
+        return true;
+      }
+    });
+
+    return filtered;
+  }
+
   return (
     <form
       method="post"
@@ -159,6 +187,8 @@ function CreateAppartmentForm(props) {
           placeSelect={onPlaceSelect}
           suggestionsChange={onSuggectionChange}
           skipSelectionOnArrowKey={true}
+          suggestionsFilter={suggestionsFilter}
+          filterByCountryCode={["eg", "ae"]}
         />
       </GeoapifyContext>
 

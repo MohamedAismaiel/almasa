@@ -38,9 +38,10 @@ function Images() {
             transform: "translateX(0%)",
           };
         }
+
         return (
           <LazyLoadImage
-            key={p.id}
+            key={p._id}
             src={p.location}
             width="100%"
             height="100%"

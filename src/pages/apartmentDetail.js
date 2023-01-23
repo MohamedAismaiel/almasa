@@ -40,7 +40,7 @@ function ApartmentDetail() {
           photos {
             location
             isLanding
-            id
+            _id
           }
           deliveryDate
           spaceUnit
@@ -82,7 +82,7 @@ function ApartmentDetail() {
         <div className="container">
           <ApartmentImages />
           <ApartmentDetailsSummary />
-          <ApartmentPriceDetails />
+          {/* <ApartmentPriceDetails /> */}
           <ApartmentLocation />
           <ApartmentDescriptionDetails />
           <ApartmentAmenities />

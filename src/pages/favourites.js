@@ -32,7 +32,7 @@ function FavouritesPage() {
               photos {
                 location
                 isLanding
-                id
+                _id
               }
               deliveryDate
               spaceUnit
