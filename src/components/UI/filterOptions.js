@@ -2,11 +2,48 @@ import { Fragment, useEffect, useRef, useState } from "react";
 import Select from "react-select";
 import { MdOutlineExpandMore } from "react-icons/md";
 import { useLocation, useSearchParams } from "react-router-dom";
-import { clear } from "@testing-library/user-event/dist/clear";
-import { logDOM } from "@testing-library/react";
+import { LoginContext } from "../context/loginContext";
+import { useContext } from "react";
+
 function FilterOptions(props) {
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [maxPriceIsTouched, setMaxPriceIsTouched] = useState(false);
+  const initialFetching = useContext(LoginContext).initialFetching;
+
+  let rentType =
+    location.pathname.split("/")[1] === "commerical-sale" || "commerical-rent"
+      ? location.pathname.split("/")[1].replace("-", " ")
+      : location.pathname.split("/")[1];
+
+  let dailyOrMonthlyInitialValue;
+  if (
+    (rentType === "commercial rent" || rentType === "rent") &&
+    searchParams.get("dOrM") === null
+  ) {
+    dailyOrMonthlyInitialValue = "monthly";
+  } else if (
+    (rentType === "commercial rent" || rentType === "rent") &&
+    searchParams.get("dOrM") !== null
+  ) {
+    dailyOrMonthlyInitialValue = searchParams.get("dOrM");
+  } else dailyOrMonthlyInitialValue = null;
+
+  const [dailyOrMonthly, setDailyOrMonthly] = useState(
+    dailyOrMonthlyInitialValue
+  );
+  const initialDailyOrMonthlyActiceClass =
+    searchParams.get("dOrM") === "monthly" || searchParams.get("dOrM") === null
+      ? "monthly"
+      : "daily";
+  const [monthlyClassActive, setMonthlyClassActive] = useState(
+    initialDailyOrMonthlyActiceClass === "monthly" && true
+  );
+
+  const [dailyClassActive, setDailyClassActive] = useState(
+    initialDailyOrMonthlyActiceClass === "daily" && true
+  );
+
   const apartmentTypeInitialValue =
     searchParams.get("type") === null || searchParams.get("type") === "allTypes"
       ? null
@@ -72,7 +109,6 @@ function FilterOptions(props) {
   );
   const [dropdown, toggleDropDown] = useState(false);
   const priceButtonRef = useRef();
-  const location = useLocation();
   const bedroomRef = useRef();
   const bathroomRef = useRef();
   const apartmentOptions = [
@@ -112,6 +148,16 @@ function FilterOptions(props) {
     { value: "7", label: "7 baths" },
     { value: "7+", label: "7+ baths" },
   ];
+
+  let showRentPeriod;
+
+  props.buyOrRent
+    ? (showRentPeriod =
+        rentType === "rent" ||
+        rentType === "commercial rent" ||
+        props.buyOrRent === "rent")
+    : (showRentPeriod = rentType === "rent" || rentType === "commercial rent");
+
   const closeDropdown = (e) => {
     if (e.target.dataset.closeDrodown !== "false") {
       toggleDropDown(false);
@@ -135,7 +181,6 @@ function FilterOptions(props) {
   const bedroomHandler = (e, action) => {
     let roomnumbers = [];
 
-    // console.log(    bedroomRef.current.commonProps.selectProps.value);
     e.forEach((element) => {
       roomnumbers.push(+element.value);
     });
@@ -148,13 +193,21 @@ function FilterOptions(props) {
     });
     setBathroomsNumbers(roomnumbers);
   };
+
+  // useEffect(() => {
+  //   showRentPeriod
+  //     ? setDailyOrMonthly("monthly")
+  //     : setDailyOrMonthly(undefined);
+  // }, [showRentPeriod]);
+
   if (Object.keys(props).length > 0) {
     props.getFormValues(
       apartmentType,
       bedroomsNumbers,
       bathroomsNumbers,
       minPrice,
-      maxPrice
+      maxPrice,
+      dailyOrMonthly
     );
   }
 
@@ -188,29 +241,31 @@ function FilterOptions(props) {
   useEffect(() => {
     if (location.search.length === 0) {
       setApartmentType(null);
+      setMaxPrice(null);
+      setMinPrice(null);
       bedroomRef.current.commonProps.clearValue();
       bathroomRef.current.commonProps.clearValue();
     }
   }, [location]);
 
-  const x = bedroomsOptions.filter(({ value }) => {
-    // console.log(value);
-    // console.log(bedroomsNumbers);
-    return value === bedroomsNumbers;
-  });
-  function isPositiveInteger(str) {
-    if (typeof str !== "string") {
-      return false;
-    }
+  // const x = bedroomsOptions.filter(({ value }) => {
+  // console.log(value);
+  // console.log(bedroomsNumbers);
+  // return value === bedroomsNumbers;
+  // });
+  // function isPositiveInteger(str) {
+  //   if (typeof str !== "string") {
+  //     return false;
+  //   }
 
-    const num = Number(str);
+  //   const num = Number(str);
 
-    if (Number.isInteger(num) && num > 0) {
-      return true;
-    }
+  //   if (Number.isInteger(num) && num > 0) {
+  //     return true;
+  //   }
 
-    return false;
-  }
+  //   return false;
+  // }
   return (
     <Fragment>
       <Select
@@ -327,58 +382,138 @@ function FilterOptions(props) {
               className="filterBar-inputsContainer-priceContiner-dropdown"
               data-close-drodown="false"
             >
-              <input
-                onBlur={(e) => {
-                  if (
-                    +minPrice > +maxPrice &&
-                    maxPriceIsTouched &&
-                    maxPrice !== null
-                  ) {
-                    setMaxPrice((prevState) => {
-                      setMinPrice(prevState);
-                      return minPrice;
-                    });
-                  }
-                }}
-                className="filterBar-inputsContainer-priceContiner-dropdown-minPrice"
-                placeholder="Min Price (EGP)"
+              <div
+                className="filterBar-inputsContainer-priceContiner-dropdown-group1"
                 data-close-drodown="false"
-                value={minPrice !== null ? minPrice : ""}
-                onChange={(e) => {
-                  setMinPrice(e.target.value.replace(/\D/g, ""));
-                  if (e.target.value.length === 0) {
-                    setMinPrice(null);
-                  }
-                }}
-              />
-              <span data-close-drodown="false">&#8212;</span>
-              <input
-                onBlur={(e) => {
-                  if (
-                    +minPrice > +maxPrice &&
-                    maxPriceIsTouched &&
-                    maxPrice !== null
-                  ) {
-                    setMaxPrice((prevState) => {
-                      setMinPrice(prevState);
-                      return minPrice;
-                    });
-                  }
-                }}
-                className="filterBar-inputsContainer-priceContiner-dropdown-maxPrice"
-                placeholder="Max Price (EGP)"
+              >
+                <input
+                  onBlur={(e) => {
+                    if (
+                      +minPrice > +maxPrice &&
+                      maxPriceIsTouched &&
+                      maxPrice !== null
+                    ) {
+                      setMaxPrice((prevState) => {
+                        setMinPrice(prevState);
+                        return minPrice;
+                      });
+                    }
+                  }}
+                  className="filterBar-inputsContainer-priceContiner-dropdown-group1-minPrice"
+                  placeholder="Min Price (EGP)"
+                  data-close-drodown="false"
+                  value={minPrice !== null ? minPrice : ""}
+                  onChange={(e) => {
+                    setMinPrice(e.target.value.replace(/\D/g, ""));
+                    if (e.target.value.length === 0) {
+                      setMinPrice(null);
+                    }
+                  }}
+                />
+                <span data-close-drodown="false">&#8212;</span>
+                <input
+                  onBlur={(e) => {
+                    if (
+                      +minPrice > +maxPrice &&
+                      maxPriceIsTouched &&
+                      maxPrice !== null
+                    ) {
+                      setMaxPrice((prevState) => {
+                        setMinPrice(prevState);
+                        return minPrice;
+                      });
+                    }
+                  }}
+                  className="filterBar-inputsContainer-priceContiner-dropdown-group1-maxPrice"
+                  placeholder="Max Price (EGP)"
+                  data-close-drodown="false"
+                  id="maxPrice"
+                  value={maxPrice !== null ? maxPrice : ""}
+                  onChange={(e) => {
+                    setMaxPriceIsTouched(true);
+                    setMaxPrice(e.target.value.replace(/\D/g, ""));
+                    if (maxPrice < minPrice) {
+                    }
+                    if (e.target.value.length === 0) {
+                      setMaxPrice(null);
+                    }
+                  }}
+                />
+              </div>
+              {showRentPeriod && (
+                <div
+                  className="filterBar-inputsContainer-priceContiner-dropdown-group2"
+                  data-close-drodown="false"
+                >
+                  <p
+                    className="filterBar-inputsContainer-priceContiner-dropdown-group2-text"
+                    data-close-drodown="false"
+                  >
+                    Renting period
+                  </p>
+                  <div
+                    className="filterBar-inputsContainer-priceContiner-dropdown-group2-period"
+                    data-close-drodown="false"
+                  >
+                    <div
+                      className={
+                        monthlyClassActive
+                          ? "filterBar-inputsContainer-priceContiner-dropdown-group2-period-monthly active"
+                          : "filterBar-inputsContainer-priceContiner-dropdown-group2-period-monthly"
+                      }
+                      data-period="monthly"
+                      data-close-drodown="false"
+                      onClick={(e) => {
+                        if (monthlyClassActive === true) {
+                          return;
+                        }
+                        props.getDailyOrMonthlyInUrl &&
+                          props.getDailyOrMonthlyInUrl("monthly");
+                        setDailyOrMonthly("monthly");
+                        setMonthlyClassActive(true);
+                        setDailyClassActive(false);
+                      }}
+                    >
+                      Monthly
+                    </div>
+                    <div
+                      className={
+                        dailyClassActive
+                          ? "filterBar-inputsContainer-priceContiner-dropdown-group2-period-daily active"
+                          : "filterBar-inputsContainer-priceContiner-dropdown-group2-period-daily"
+                      }
+                      data-period="daily"
+                      data-close-drodown="false"
+                      onClick={(e) => {
+                        if (dailyClassActive === true) {
+                          return;
+                        }
+                        props.getDailyOrMonthlyInUrl &&
+                          props.getDailyOrMonthlyInUrl("daily");
+                        // props.getDailyOrMonthlyInUrl("daily");
+                        setDailyOrMonthly("daily");
+                        setMonthlyClassActive(false);
+                        setDailyClassActive(true);
+                      }}
+                    >
+                      Daily
+                    </div>
+                  </div>
+                </div>
+              )}
+              <p
+                className="filterBar-inputsContainer-priceContiner-dropdown-group2-period-reset"
                 data-close-drodown="false"
-                value={maxPrice !== null ? maxPrice : ""}
-                onChange={(e) => {
-                  setMaxPriceIsTouched(true);
-                  setMaxPrice(e.target.value.replace(/\D/g, ""));
-                  if (maxPrice < minPrice) {
+                onClick={(e) => {
+                  if (maxPrice === null && minPrice === null) {
+                    return;
                   }
-                  if (e.target.value.length === 0) {
-                    setMaxPrice(null);
-                  }
+                  setMaxPrice(null);
+                  setMinPrice(null);
                 }}
-              />
+              >
+                Reset
+              </p>
             </div>
           )
           // (+minPrice > +maxPrice &&

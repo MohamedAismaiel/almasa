@@ -11,110 +11,54 @@ function CommericalRentPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
 
-  const [apartments, setApartments] = useState(null);
+  // const [apartments, setApartments] = useState(null);
+  const apartmentsCtx = useContext(LoginContext).apartments;
+  const setApartmentsCtx = useContext(LoginContext).setApartmentsHandler;
+  const initialFetching = useContext(LoginContext).initialFetching;
 
   useEffect(() => {
-    const apartmentType =
-      searchParams.get("type") === "allTypes" ||
-      searchParams.get("type") === null
-        ? null
-        : JSON.stringify(searchParams.get("type"));
-
+    const apartmentType = JSON.stringify(searchParams.get("type"));
     const bedroomsNumbers =
       searchParams.get("beds") === "all" || searchParams.get("beds") === null
         ? JSON.stringify([])
         : searchParams.get("beds");
-
     const bathroomsNumbers =
       searchParams.get("baths") === "all" || searchParams.get("baths") === null
         ? JSON.stringify([])
         : searchParams.get("baths");
-    const minPrice =
-      searchParams.get("minP") === "min" || searchParams.get("minP") === null
-        ? null
-        : searchParams.get("minP");
-    const maxPrice =
-      searchParams.get("maxP") === "max" || searchParams.get("maxP") === null
-        ? null
-        : searchParams.get("maxP");
+    const minPrice = searchParams.get("minP");
+    const maxPrice = searchParams.get("maxP");
 
-    // const rentType = JSON.stringify([searchParams.get("bor")]);
     const rentType = JSON.stringify(
       location.pathname.split("/")[1].replace("-", " ")
     );
 
-    const graphqlQuery = {
-      query: `query filterdApartments($rentType:String,$apartmentType:String,$bedroomsNumbers:String,$bathroomsNumbers:String,$maxPrice:String,$minPrice:String)
-      {
-        filterdApartments(filteredApartmentsInput:{rentType:$rentType apartmentType:$apartmentType  bedroomsNumbers:$bedroomsNumbers  bathroomsNumbers:$bathroomsNumbers  maxPrice:$maxPrice minPrice:$minPrice }  )
-
-        {
-          _id
-        type
-        rentOrSale
-        isAvaliable
-        price
-        location
-        space
-        rooms
-        description
-        finishing
-        bathrooms
-        photos {
-          location
-          isLanding
-          _id
-        }
-        spaceUnit
-        amenities
-        paymentType
-        deliveryDate
-        refrenceName
-        mainHeader
-        createdAt
-        updatedAt
-        }
-      }
-      `,
-      variables: {
-        rentType,
-        apartmentType,
-        maxPrice,
-        minPrice,
-        bathroomsNumbers,
-        bedroomsNumbers,
-      },
-    };
-    fetch("http://localhost:8080/graphql", {
-      method: "POST",
-      headers: {
-        "Content-type": "application/json",
-      },
-      body: JSON.stringify(graphqlQuery),
-    })
-      .then((res) => {
-        return res.json();
-      })
-      .then((resData) => {
-        if (resData) {
-          setApartments(resData.data.filterdApartments);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    const dailyOrMonthly =
+      searchParams.get("dOrM") === null ? "monthly" : searchParams.get("dOrM");
+    initialFetching(
+      rentType,
+      apartmentType,
+      bedroomsNumbers,
+      bathroomsNumbers,
+      minPrice,
+      maxPrice,
+      dailyOrMonthly
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location]);
-  if (apartments !== null) {
-    const getValues = (values) => {
-      setApartments(values.data.filterdApartments);
-    };
+  }, []);
+  if (apartmentsCtx != null && apartmentsCtx.length > 0) {
+    if (apartmentsCtx[0].rentOrSale !== "commercial rent") {
+      return <></>;
+    }
+    // const getValues = (values) => {
+    //   setApartmentsCtx(values.data.filterdApartments);
+    // };
 
     return (
       <Fragment>
-        <FilterBar getValues={getValues} />
+        {/* <FilterBar getValues={getValues} /> */}
         <section>
-          {apartments.map((p) => {
+          {apartmentsCtx.map((p) => {
             return (
               <ApartmentCard
                 key={p._id}

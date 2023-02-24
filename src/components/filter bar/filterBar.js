@@ -1,63 +1,56 @@
 import { useEffect, useState } from "react";
 import Select from "react-select";
-import PlacesAutocomplete, {
-  geocodeByAddress,
-  getLatLng,
-} from "react-places-autocomplete";
-import { MdOutlineExpandMore } from "react-icons/md";
+// import PlacesAutocomplete, {
+//   geocodeByAddress,
+//   getLatLng,
+// } from "react-places-autocomplete";
+
 import FilterOptions from "../UI/filterOptions";
-import AsyncSelect from "react-select/async";
+
 import {
   useLocation,
   useNavigate,
-  useSearchParams,
   createSearchParams,
+  useSearchParams,
 } from "react-router-dom";
 import {
   GeoapifyGeocoderAutocomplete,
   GeoapifyContext,
 } from "@geoapify/react-geocoder-autocomplete";
 import "@geoapify/geocoder-autocomplete/styles/minimal.css";
-function FilterBar(props) {
-  // const [coordinates, setCoordinates] = useState({ lat: null, lng: null });
-  // const [enteredLocation, setEnteredLocation] = useState("");
 
-  // const [dropdown, toggleDropDown] = useState(false);
-  const [rentType, setRentType] = useState(null);
+function FilterBar(props) {
   const [apartmentType, setApartmentType] = useState(null);
   const [bedroomsNumbers, setBedroomsNumbers] = useState([]);
   const [bathroomsNumbers, setBathroomsNumbers] = useState([]);
   const [minPrice, setMinPrice] = useState(null);
   const [maxPrice, setMaxPrice] = useState(null);
   const [searchedLocation, setSearchedLocation] = useState(null);
-
+  const [dailyOrMonthly, setDailyOrMonthly] = useState();
   const location = useLocation();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   let rentTypeInitialValue =
     location.pathname.split("/")[1] === "commerical-sale" || "commerical-rent"
       ? location.pathname.split("/")[1].replace("-", " ")
       : location.pathname.split("/")[1];
+  const [rentType, setRentType] = useState(rentTypeInitialValue);
 
   useEffect(() => {
     const controller = new AbortController();
+
     let rentTypeDefaultValue =
       location.pathname.split("/")[1] === "commerical-sale" || "commerical-rent"
         ? location.pathname.split("/")[1].replace("-", " ")
         : location.pathname.split("/")[1];
-    setRentType(rentTypeDefaultValue);
 
+    setRentType(rentTypeDefaultValue);
     return () => {
       controller.abort();
     };
   }, [location.pathname]);
 
-  // const handleSelect = async (value) => {
-  //   const results = await geocodeByAddress(value);
-  //   const latlng = await getLatLng(results[0]);
-  //   setEnteredLocation(value);
-  //   setCoordinates(latlng);
-  // };
   const rentOptions = [
     { value: "rent", label: "Rent" },
     { value: "sale", label: "Sale" },
@@ -65,55 +58,17 @@ function FilterBar(props) {
     { value: "commercial sale", label: "Commercial sale" },
   ];
 
-  let multiValueContainer = ({ selectProps, data }) => {
-    const allSelected = selectProps.value;
-    let roomsNumber = [];
-    let outputLabel;
-    // const index = allSelected.findIndex((selected) => selected.label === label);
-    // const isLastSelected = index === allSelected.length - 1;
-    // const labelSuffix = isLastSelected ? ` (${allSelected.length})` : ", ";
-    // const val = `${label}${labelSuffix}`;
-    // console.log(val);
-    // return val;
-    // // 1,4,5 beds or 1-6 beds
-    function compare(a, b) {
-      if (a.value < b.value) {
-        return -1;
-      }
-      if (a.value > b.value) {
-        return 1;
-      }
-      return 0;
-    }
-    allSelected.sort(compare);
-
-    const label = data.value;
-    const index = allSelected.findIndex((selected) => selected.value === label);
-    const isLastSelected = index === allSelected.length - 1;
-    const labelSuffix = isLastSelected ? ` beds` : ", ";
-
-    const val = `${allSelected[index].value}${labelSuffix}`;
-
-    return val;
-  };
-  const customStyles = {
-    valueContainer: (provided, state) => ({
-      ...provided,
-      textOverflow: "ellipsis",
-      maxWidth: "15rem",
-      whiteSpace: "nowrap",
-      overflow: "hidden",
-      height: "4rem",
-    }),
-  };
-
   const getFormValues = (
     apartmentType = null,
     bedroomsNumbers = [],
     bathroomsNumbers = [],
     minPrice = null,
-    maxPrice = null
+    maxPrice = null,
+    dailyOrMonthly
   ) => {
+    rentType === "sale" || rentType === "commercial sale"
+      ? setTimeout(() => setDailyOrMonthly(null), 0)
+      : setTimeout(() => setDailyOrMonthly(dailyOrMonthly), 0);
     setTimeout(() => setApartmentType(apartmentType), 0);
     setTimeout(() => setBedroomsNumbers(bedroomsNumbers), 0);
     setTimeout(() => setBathroomsNumbers(bathroomsNumbers), 0);
@@ -124,18 +79,68 @@ function FilterBar(props) {
   const submitFormHandler = (e) => {
     e.preventDefault();
     getFormValues();
+
+    let searchingParameters = {};
+    if (rentType) {
+      searchingParameters.bor = rentType;
+    }
+    if (apartmentType) {
+      searchingParameters.type = apartmentType;
+    }
+    if (maxPrice) {
+      searchingParameters.maxP = maxPrice;
+    }
+    if (minPrice) {
+      searchingParameters.minP = minPrice;
+    }
+    if (bathroomsNumbers.length !== 0) {
+      searchingParameters.baths = JSON.stringify(bathroomsNumbers);
+    }
+    if (bedroomsNumbers.length !== 0) {
+      searchingParameters.beds = JSON.stringify(bedroomsNumbers);
+    }
+    if (
+      dailyOrMonthly &&
+      rentType !== "sale" &&
+      rentType !== "commercial sale"
+    ) {
+      searchingParameters.dOrM = dailyOrMonthly;
+    }
+    if (searchedLocation) {
+      searchingParameters.cy = searchedLocation.city;
+    }
+    if (searchedLocation) {
+      searchingParameters.add = searchedLocation.address;
+    }
+
+    if (rentType !== rentTypeInitialValue) {
+      // let dailyOrMonthlyInUrlInNavigation =
+      //   rentType === "rent" || rentType === "commercial-rent"
+      //     ? "monthly"
+      //     : null;
+
+      navigate({
+        pathname: `/${rentType}`,
+        search: createSearchParams({
+          ...searchingParameters,
+          // dOrM: dailyOrMonthlyInUrlInNavigation,
+        }).toString(),
+      });
+      return;
+    }
+
     const bathroomsNumberStringfy = JSON.stringify(bathroomsNumbers);
     const bedroomsNumberStringfy = JSON.stringify(bedroomsNumbers);
+
     const rentTypeStringfy = JSON.stringify(rentType);
     const apartmentTypeStringfy = JSON.stringify(apartmentType);
-
     const locationStringfy =
       searchedLocation === null ? null : JSON.stringify(searchedLocation);
     setTimeout(() => {
       const graphqlQuery = {
-        query: `query filterdApartments($rentType:String,$apartmentType:String,$bedroomsNumbers:String,$bathroomsNumbers:String,$maxPrice:String,$minPrice:String,$location:String)
+        query: `query filterdApartments($rentType:String,$apartmentType:String,$bedroomsNumbers:String,$bathroomsNumbers:String,$maxPrice:String,$minPrice:String,$location:String,$dailyOrMonthly:String)
       {
-        filterdApartments(filteredApartmentsInput:{rentType:$rentType apartmentType:$apartmentType  bedroomsNumbers:$bedroomsNumbers  bathroomsNumbers:$bathroomsNumbers  maxPrice:$maxPrice minPrice:$minPrice location:$location }  )
+        filterdApartments(filteredApartmentsInput:{rentType:$rentType apartmentType:$apartmentType  bedroomsNumbers:$bedroomsNumbers  bathroomsNumbers:$bathroomsNumbers  maxPrice:$maxPrice minPrice:$minPrice location:$location dailyOrMonthly:$dailyOrMonthly}  )
 
         {
           _id
@@ -165,6 +170,7 @@ function FilterBar(props) {
           deliveryDate
           refrenceName
           mainHeader
+          dailyRentPrice
           createdAt
           updatedAt
         }
@@ -173,11 +179,12 @@ function FilterBar(props) {
         variables: {
           rentType: rentTypeStringfy,
           apartmentType: apartmentTypeStringfy,
-          maxPrice: maxPrice,
-          minPrice: minPrice,
+          maxPrice,
+          minPrice,
           bathroomsNumbers: bathroomsNumberStringfy,
           bedroomsNumbers: bedroomsNumberStringfy,
           location: locationStringfy,
+          dailyOrMonthly,
         },
       };
       return fetch("http://localhost:8080/graphql", {
@@ -191,62 +198,20 @@ function FilterBar(props) {
           return res.json();
         })
         .then((resData) => {
-          const apartmentTypeInUrl =
-            apartmentType === null ? "allTypes" : apartmentType;
-          const bedsInUrl =
-            bedroomsNumbers.length === 0
-              ? "all"
-              : JSON.stringify(bedroomsNumbers);
-          const BathsInUrl =
-            bathroomsNumbers.length === 0
-              ? "all"
-              : JSON.stringify(bathroomsNumbers);
-          const minPriceInUrl = minPrice === null ? "min" : minPrice;
-          const maxPriceInUrl = maxPrice === null ? "max" : maxPrice;
-          if (rentType !== rentTypeInitialValue) {
-            navigate({
-              pathname: `/${rentType}`,
-              search: createSearchParams({
-                bor: rentType,
-                type: apartmentTypeInUrl,
-                beds: bedsInUrl,
-                baths: BathsInUrl,
-                minP: minPriceInUrl,
-                maxP: maxPriceInUrl,
-              }).toString(),
-            });
-          } else {
-            props.getValues(resData);
+          props.getValues(resData);
 
-            const text = `${location.pathname}?bor=${rentType}&type=${apartmentTypeInUrl}&beds=${bedsInUrl}&baths=${BathsInUrl}&minP=${minPriceInUrl}&maxP=${maxPriceInUrl}`;
-            window.history.replaceState(null, "", text);
-          }
-        })
-        .then(() => {
-          // if (Array.isArray(rentType) && rentType[0] !== rentTypeInitialValue) {
-          //   navigate(`/${rentType}${location.search}`);
-          // }
-          // 7ot el props.getvalues gwa el if
+          setSearchParams({
+            ...searchingParameters,
+          });
+          // const text = `${location.pathname}?bor=${rentType}&type=${apartmentTypeInUrl}&beds=${bedsInUrl}&baths=${BathsInUrl}&minP=${minPriceInUrl}&maxP=${maxPriceInUrl}&dOrM=${dailyOrMonthly}`;
+
+          // window.history.replaceState(null, "", text);
         });
     }, 100);
   };
-  // const bedroomHandler = (e) => {
-  //   let roomnumbers = [];
-  //   e.forEach((element) => {
-  //     roomnumbers.push(+element.value);
-  //   });
-  //   setBedroomsNumbers(roomnumbers);
-  // };
-  // const bathroomHandler = (e) => {
-  //   let roomnumbers = [];
-  //   e.forEach((element) => {
-  //     roomnumbers.push(+element.value);
-  //   });
-  //   setBathroomsNumbers(roomnumbers);
-  // };
 
   function onPlaceSelect(value) {
-    console.log(value);
+    // console.log(value);
     if (!value) {
       setSearchedLocation(null);
       return;
@@ -264,9 +229,7 @@ function FilterBar(props) {
     setSearchedLocation(modifiedSearchedLocation);
   }
 
-  function onSuggectionChange(value) {
-    console.log(value);
-  }
+  function onSuggectionChange(value) {}
 
   function suggestionsFilter(suggestions) {
     const processedStreets = [];
@@ -309,56 +272,7 @@ function FilterBar(props) {
               // type={"state"}
             />
           </GeoapifyContext>
-
-          {/* <PlacesAutocomplete
-            value={enteredLocation}
-            onChange={setEnteredLocation}
-            onSelect={handleSelect}
-          >
-            {({
-              getInputProps,
-              suggestions,
-              getSuggestionItemProps,
-              loading,
-            }) => (
-              <div>
-                <input
-                  {...getInputProps({ placeholder: "Search for a city" })}
-                />
-                <div className="loadingContainer">
-                  {loading ? (
-                    <div className="loadingContainer-loading">loading...</div>
-                  ) : null}
-                  {suggestions.map((suggestion, i) => {
-                    const style = {
-                      backgroundColor: suggestion.active ? "#41b6e6" : "#fff",
-                      width: "35rem",
-                      fontSize: "1.6rem",
-                      padding: "1rem",
-                    };
-                    let suggestionDisplay;
-                    if (suggestion.description.length >= 44) {
-                      suggestionDisplay = `${suggestion.description
-                        .slice(0, 38)
-                        .concat("...")}`;
-                    } else {
-                      suggestionDisplay = `${suggestion.description}`;
-                    }
-                    return (
-                      <div
-                        key={i}
-                        {...getSuggestionItemProps(suggestion, { style })}
-                      >
-                        {suggestionDisplay}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-          </PlacesAutocomplete> */}
         </div>
-
         <Select
           isSearchable={false}
           options={rentOptions}
@@ -371,6 +285,10 @@ function FilterBar(props) {
               rentTypeInitialValue.charAt(0).toUpperCase() +
               rentTypeInitialValue.slice(1),
             value: rentTypeInitialValue,
+          }}
+          value={{
+            label: rentType.charAt(0).toUpperCase() + rentType.slice(1),
+            value: rentType,
           }}
           onChange={(e) => {
             if (!e) {

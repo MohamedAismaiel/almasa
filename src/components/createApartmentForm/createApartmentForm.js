@@ -1,10 +1,7 @@
 import { useContext, useState } from "react";
 import LoginProvider, { LoginContext } from "../context/loginContext";
 import Button from "../UI/button";
-import PlacesAutocomplete, {
-  geocodeByAddress,
-  getLatLng,
-} from "react-places-autocomplete";
+
 import {
   GeoapifyGeocoderAutocomplete,
   GeoapifyContext,
@@ -15,6 +12,8 @@ function CreateAppartmentForm(props) {
   const [enteredRentOrSale, setEnteredRentOrSale] = useState("rent");
   const [enteredIsAvaliable, setEnteredIsAvaliable] = useState("yes");
   const [enteredPrice, setEnteredPrice] = useState("");
+  const [enteredDailyRentPrice, setEnteredDailyRentPrice] = useState("");
+  const [dailyRentAvailable, setDailyRentAvailable] = useState(false);
   const [enteredLocation, setEnteredLocation] = useState({});
   const [enteredSpace, setEnteredSpace] = useState("");
   const [spaceUnit, setSpaceUnit] = useState(`sqm`);
@@ -32,6 +31,7 @@ function CreateAppartmentForm(props) {
   const furnished = useContext(LoginContext).furnishedAmentites;
   const viewAmentites = useContext(LoginContext).viewAmentites;
   const [amenities, setList] = useState([]);
+  const [hasDailyRent, setHasDailyRent] = useState(false);
   // const [coordinates, setCoordinates] = useState({ lat: null, lng: null });
   const amenitie = useContext(LoginContext).amenitie;
   const logout = useContext(LoginContext).logoutHandler;
@@ -78,6 +78,8 @@ function CreateAppartmentForm(props) {
       spaceUnit,
       refrenceName,
       amenities,
+      enteredDailyRentPrice,
+      hasDailyRent,
       // coordinates,
     });
 
@@ -148,6 +150,7 @@ function CreateAppartmentForm(props) {
       method="post"
       encType="multipart/form-data"
       onSubmit={onSubmitHandler}
+      className="createApartmentForm"
     >
       {/* <PlacesAutocomplete
         value={enteredLocation}
@@ -180,7 +183,7 @@ function CreateAppartmentForm(props) {
         )}
       </PlacesAutocomplete> */}
       <GeoapifyContext apiKey="d58fcb81a23e4d69b4496ae7bcb6f54e">
-        <label>location</label>
+        <label className="required">location</label>
         <GeoapifyGeocoderAutocomplete
           placeholder="Enter address here"
           limit={5}
@@ -191,9 +194,11 @@ function CreateAppartmentForm(props) {
           filterByCountryCode={["eg", "ae"]}
         />
       </GeoapifyContext>
-
+      <br />
       <div>
-        <label htmlFor="type">Choose apartment type</label>
+        <label className="required" htmlFor="type">
+          Choose apartment type
+        </label>
         <select
           id="type"
           onChange={(e) => {
@@ -216,8 +221,11 @@ function CreateAppartmentForm(props) {
           <option value="staff accommodation">Staff Accommodation</option>
           <option value="show room">Show room</option>
           <option value="office">Office</option>
-        </select>
-        <label htmlFor="rentOrSale">Apartment For </label>
+        </select>{" "}
+        <br />
+        <label htmlFor="rentOrSale" className="required">
+          Apartment For{" "}
+        </label>
         <select
           id="rentOrSale"
           onChange={(e) => {
@@ -229,7 +237,10 @@ function CreateAppartmentForm(props) {
           <option value="commercial rent">Commercial rent</option>
           <option value="commercial sale">Commercial sale</option>
         </select>
-        <label htmlFor="isAvaliable">Is avaliable</label>
+        <br />
+        <label htmlFor="isAvaliable" className="required">
+          Is avaliable
+        </label>
         <select
           id="isAvaliable"
           onChange={(e) => {
@@ -239,30 +250,62 @@ function CreateAppartmentForm(props) {
           <option value="yes">Yes</option>
           <option value="no">No</option>
         </select>
-
-        <label>price</label>
+        <br />
+        <label className="required">price</label>
         <input
+          required
           type="number"
           onChange={(e) => {
             setEnteredPrice(e.target.value);
           }}
+        />{" "}
+        <br />
+        {/* make here daily rent choice */}
+        <input
+          type="checkbox"
+          id="dailyrent"
+          onChange={(e) => {
+            console.log(e.target.checked);
+            e.target.checked ? setHasDailyRent(true) : setHasDailyRent(false);
+            e.target.checked === false && setEnteredDailyRentPrice(null);
+            setDailyRentAvailable(e.target.checked);
+          }}
         />
+        <label htmlFor="dailyrent">Daily rent price</label>
+        {dailyRentAvailable && (
+          <input
+            type="number"
+            onChange={(e) => {
+              console.log(e.target.value);
+              if (e.target.value.length === 0) {
+                setEnteredDailyRentPrice(null);
+                return;
+              }
 
-        <label>Payment type</label>
+              setEnteredDailyRentPrice(e.target.value);
+            }}
+          />
+        )}
+        <br />
+        <label className="required">Payment type</label>
         <input
           type="text"
           onChange={(e) => {
             setPaymentType(e.target.value);
           }}
         />
-
-        <label htmlFor="space">Space:</label>
+        <br />
+        <label className="required" htmlFor="space">
+          Space:
+        </label>
         <input
           type="number"
           onChange={(e) => {
             setEnteredSpace(e.target.value);
           }}
         />
+        <br />
+        <label>space in </label>
         <select
           id="space"
           onChange={(e) => {
@@ -273,41 +316,42 @@ function CreateAppartmentForm(props) {
           <option value="sqft">sqft</option>
           <option value="arce">arce</option>
         </select>
-
-        <label>space in </label>
-
-        <label>rooms</label>
+        <br />
+        <label className="required">rooms</label>
         <input
           type="number"
           onChange={(e) => {
             setEnteredRooms(e.target.value);
           }}
         />
-
-        <label>bathrooms</label>
+        <br />
+        <label className="required">bathrooms</label>
         <input
           type="number"
           onChange={(e) => {
             setEnteredBathrooms(e.target.value);
           }}
         />
-
-        <label>Delivery date</label>
+        <br />
+        <label className="required">Delivery date</label>
         <input
           type="text"
           onChange={(e) => {
             setDeliveryDate(e.target.value);
           }}
         />
-
-        <label>Main Header</label>
+        <br />
+        <label className="required">Main Header</label>
         <input
           type="text"
           onChange={(e) => {
             setMainHeader(e.target.value);
           }}
         />
-        <label htmlFor="description">description</label>
+        <br />
+        <label className="required" htmlFor="description">
+          description
+        </label>
         <textarea
           id="description"
           name="description"
@@ -317,8 +361,10 @@ function CreateAppartmentForm(props) {
             setEnteredDescription(e.target.value);
           }}
         />
-
-        <label htmlFor="finishing">Choose finishing type</label>
+        <br />
+        <label className="required" htmlFor="finishing">
+          Choose finishing type
+        </label>
         <select
           id="finishing"
           onChange={(e) => {
@@ -333,20 +379,23 @@ function CreateAppartmentForm(props) {
           <option value="ultra lux">Ultra lux</option>
           <option value="deluxe">Deluxe</option>
         </select>
+        <br />
       </div>
-      <label>Refrence name</label>
+      <label className="required">Refrence name</label>
       <input
         type="text"
         onChange={(e) => {
           setRefrenceName(e.target.value);
         }}
       />
+      <br />
       <input
         multiple
         type="file"
         accept="image/*"
         onChange={ImageInputChangeHandler}
       />
+      <br />
       {/* Amenities */}
       <h3>Amenities</h3>
       <br />
@@ -368,7 +417,7 @@ function CreateAppartmentForm(props) {
           }
         }}
       />
-      <label htmlFor="furniture">
+      <label className="required" htmlFor="furniture">
         Furnishing style
         <select
           id="styling"
@@ -385,6 +434,7 @@ function CreateAppartmentForm(props) {
           })}
         </select>
       </label>
+      <br />
       <input
         type="checkbox"
         id="view"
@@ -400,7 +450,7 @@ function CreateAppartmentForm(props) {
             setList(amenities.filter((item) => item !== name));
           }
         }}
-      />
+      />{" "}
       <label htmlFor="view">
         apartment view
         <select
@@ -444,7 +494,6 @@ function CreateAppartmentForm(props) {
           </div>
         );
       })}
-
       <br />
       <Button type="submit">Create apartment</Button>
     </form>

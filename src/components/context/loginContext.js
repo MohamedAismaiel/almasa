@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 
 export const LoginContext = React.createContext({
   isAuth: false,
@@ -18,6 +19,16 @@ export const LoginContext = React.createContext({
   hideMap: () => {},
   setDetailedApartment: () => {},
   setCardClickedApartment: () => {},
+  initialFetching: (
+    type,
+    apartmentType,
+    bedroomsNumbers,
+    bathroomsNumbers,
+    minPrice,
+    maxPrice,
+    dailyOrMonthly
+  ) => {},
+
   token: null,
   userId: null,
   error: [],
@@ -30,6 +41,12 @@ export const LoginContext = React.createContext({
   amenitie: [],
   emailForm: false,
   mapShown: false,
+  // typeInSearch: "tp",
+  // bedroomsInSearch: "bd",
+  // bathroomsInSearch: "bt",
+  // minPriceInSearch: "mn",
+  // maxPriceInSearch: "mx",
+  // dailyOrMonthlyInSearch: "dM",
 });
 
 const LoginProvider = (props) => {
@@ -126,6 +143,83 @@ const LoginProvider = (props) => {
     }, milliseconds);
   };
 
+  const initialFetching = (
+    type,
+    apartmentType,
+    bedroomsNumbers,
+    bathroomsNumbers,
+    minPrice,
+    maxPrice,
+    dailyOrMonthly
+  ) => {
+    const graphqlQuery = {
+      query: `query filterdApartments($rentType:String,$apartmentType:String,$bedroomsNumbers:String,$bathroomsNumbers:String,$maxPrice:String,$minPrice:String,$dailyOrMonthly:String)
+      {
+        filterdApartments(filteredApartmentsInput:{rentType:$rentType apartmentType:$apartmentType  bedroomsNumbers:$bedroomsNumbers  bathroomsNumbers:$bathroomsNumbers  maxPrice:$maxPrice minPrice:$minPrice dailyOrMonthly:$dailyOrMonthly }  )
+
+        {
+          _id
+        type
+        rentOrSale
+        isAvaliable
+        price
+        location {
+          city
+          country
+          address
+        }
+        space
+        rooms
+        description
+        finishing
+        bathrooms
+        photos {
+          location
+          isLanding
+          _id
+        }
+        spaceUnit
+        dailyRentPrice
+        amenities
+        paymentType
+        deliveryDate
+        refrenceName
+        mainHeader
+        createdAt
+        updatedAt
+        }
+      }
+      `,
+      variables: {
+        rentType: type,
+        apartmentType,
+        maxPrice,
+        minPrice,
+        bathroomsNumbers,
+        bedroomsNumbers,
+        dailyOrMonthly,
+      },
+    };
+    fetch("http://localhost:8080/graphql", {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json",
+      },
+      body: JSON.stringify(graphqlQuery),
+    })
+      .then((res) => {
+        return res.json();
+      })
+      .then((resData) => {
+        if (resData) {
+          // setApartments(resData.data.filterdApartments);
+          setApartments(resData.data.filterdApartments);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
   return (
     <LoginContext.Provider
       value={{
@@ -157,6 +251,7 @@ const LoginProvider = (props) => {
         showMap,
         setCardApartment,
         cardClickedApartment,
+        initialFetching,
       }}
     >
       {props.children}

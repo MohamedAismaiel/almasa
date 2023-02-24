@@ -8,6 +8,8 @@ import FavouritesPage from "../pages/favourites";
 import HomePage from "../pages/homePage";
 import RentPage from "../pages/rentPage";
 import { LoginContext } from "./context/loginContext";
+import FilterBar from "./filter bar/filterBar";
+import FilterLayout from "./UI/filterLayout";
 
 const ApartmentDetail = React.lazy(() => import("../pages/apartmentDetail"));
 const SalePage = React.lazy(() => import("../pages/salePage"));
@@ -25,8 +27,13 @@ function Routing() {
   return (
     <React.Suspense fallback="loading">
       <Routes>
+        <Route element={<FilterLayout />}>
+          <Route path="/sale" element={<SalePage />} />
+          <Route path="/rent" element={<RentPage />} />
+          <Route path="/commercial-rent" element={<CommericalRentPage />} />
+          <Route path="/commercial-sale" element={<CommericalSalePage />} />
+        </Route>
         <Route path="/" element={<Home />} />
-
         {isAuth ? (
           <Route path="/login" element={<Navigate to="/" />} />
         ) : (
@@ -39,22 +46,15 @@ function Routing() {
         ) : (
           <Route path="/create-apartment" element={<Navigate to="/login" />} />
         )}
-        <Route path="/sale" element={<SalePage />} />
 
         <Route path="/sale/:apartmentId" element={<ApartmentDetail />} />
 
-        <Route path="/rent" element={<RentPage />} />
-
         <Route path="/rent/:apartmentId" element={<ApartmentDetail />} />
-
-        <Route path="/commercial-sale" element={<CommericalSalePage />} />
 
         <Route
           path="/commercial-sale/:apartmentId"
           element={<ApartmentDetail />}
         />
-
-        <Route path="/commercial-rent" element={<CommericalRentPage />} />
 
         <Route
           path="/commercial-rent/:apartmentId"

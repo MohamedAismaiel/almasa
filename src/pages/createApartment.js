@@ -27,6 +27,8 @@ function CreateAppartment(props) {
       spaceUnit,
       amenities,
       refrenceName,
+      enteredDailyRentPrice,
+      hasDailyRent,
       // coordinates,
     }
   ) => {
@@ -51,15 +53,16 @@ function CreateAppartment(props) {
         const location = JSON.stringify(enteredLocation);
         // const coordinatess = JSON.stringify(coordinates);
         const graphqlQuery = {
-          query: `mutation CreateNewAppartment($type:String!,$rentOrSale:String!,$isAvaliable:String! $price:Int!,$location:String!,$space:Int!,$rooms:Int!,$bathrooms:Int!,$description:String!,$finishing:String!,$photos:String!,$paymentType:String!,$deliveryDate:String!,$mainHeader:String!,$spaceUnit:String!,$amenities:String,$refrenceName:String! ,) 
+          query: `mutation CreateNewAppartment($type:String!,$rentOrSale:String!,$isAvaliable:String! $price:Int!,$dailyRentPrice:Int!,$location:String!,$space:Int!,$rooms:Int!,$bathrooms:Int!,$description:String!,$finishing:String!,$photos:String!,$paymentType:String!,$deliveryDate:String!,$mainHeader:String!,$spaceUnit:String!,$amenities:String,$refrenceName:String!,$hasDailyRent:Boolean! ) 
           {
-            createAppartment(apartmentInput:{type:$type rentOrSale:$rentOrSale isAvaliable:$isAvaliable price:$price location:$location space:$space rooms: $rooms bathrooms:$bathrooms description:$description finishing:$finishing photos:$photos paymentType:$paymentType deliveryDate:$deliveryDate mainHeader:$mainHeader spaceUnit:$spaceUnit amenities:$amenities refrenceName:$refrenceName }  )
+            createAppartment(apartmentInput:{type:$type rentOrSale:$rentOrSale isAvaliable:$isAvaliable price:$price dailyRentPrice:$dailyRentPrice location:$location space:$space rooms: $rooms bathrooms:$bathrooms description:$description finishing:$finishing photos:$photos paymentType:$paymentType deliveryDate:$deliveryDate mainHeader:$mainHeader spaceUnit:$spaceUnit amenities:$amenities refrenceName:$refrenceName hasDailyRent:$hasDailyRent}  )
             
             { _id
               type
               rentOrSale
               isAvaliable
               price
+              dailyRentPrice
               creator{name}
               location {
                 city
@@ -72,7 +75,7 @@ function CreateAppartment(props) {
               photos {
                 location
                 isLanding
-                id
+                _id
               }
               spaceUnit
               paymentType
@@ -87,6 +90,7 @@ function CreateAppartment(props) {
             rentOrSale: enteredRentOrSale,
             isAvaliable: enteredIsAvaliable,
             price: +enteredPrice,
+            dailyRentPrice: +enteredDailyRentPrice,
             location: location,
             space: +enteredSpace,
             rooms: +enteredRooms,
@@ -100,6 +104,7 @@ function CreateAppartment(props) {
             spaceUnit: spaceUnit,
             amenities: amenitiess,
             refrenceName: refrenceName,
+            hasDailyRent,
             // coordinates: coordinatess,
           },
         };

@@ -3,13 +3,17 @@ import FilterOptions from "../components/UI/filterOptions";
 import { createSearchParams, useNavigate } from "react-router-dom";
 
 function HomePage() {
-  const [buyOrRent, setBuyOrRent] = useState("sale");
+  const [rentType, setRentType] = useState("sale");
   const [apartmentType, setApartmentType] = useState(null);
   const [bedroomsNumbers, setBedroomsNumbers] = useState([]);
   const [bathroomsNumbers, setBathroomsNumbers] = useState([]);
   const [minPrice, setMinPrice] = useState(null);
   const [maxPrice, setMaxPrice] = useState(null);
+  const [dailyOrMonthlyInUrl, setDailyOrMonthlyInUrl] = useState(null);
 
+  const getDailyOrMonthlyInUrl = (state) => {
+    setDailyOrMonthlyInUrl(state);
+  };
   const getFormValues = (
     apartmentType = null,
     bedroomsNumbers = [],
@@ -26,39 +30,49 @@ function HomePage() {
   let navigate = useNavigate();
 
   const buyOptionClassname =
-    buyOrRent === "sale"
+    rentType === "sale"
       ? "homepage-wallpaper-boxContainer-form-group1-optionBuy homepage-wallpaper-boxContainer-form-group1-optionBuy-active"
       : "homepage-wallpaper-boxContainer-form-group1-optionBuy";
   const rentOptionClassname =
-    buyOrRent === "rent"
+    rentType === "rent"
       ? "homepage-wallpaper-boxContainer-form-group1-optionRent homepage-wallpaper-boxContainer-form-group1-optionRent-active "
       : "homepage-wallpaper-boxContainer-form-group1-optionRent hom";
 
   const onSubmitHandler = (e) => {
     e.preventDefault();
     getFormValues();
+    let searchingParameters = {};
+    if (rentType) {
+      searchingParameters.bor = rentType;
+    }
+    if (apartmentType) {
+      searchingParameters.type = apartmentType;
+    }
+    if (maxPrice) {
+      searchingParameters.maxP = maxPrice;
+    }
+    if (minPrice) {
+      searchingParameters.minP = minPrice;
+    }
+    if (bathroomsNumbers.length !== 0) {
+      searchingParameters.baths = JSON.stringify(bathroomsNumbers);
+    }
+    if (bedroomsNumbers.length !== 0) {
+      searchingParameters.beds = JSON.stringify(bedroomsNumbers);
+    }
+    if (dailyOrMonthlyInUrl) {
+      searchingParameters.dOrM = dailyOrMonthlyInUrl;
+    }
     setTimeout(
       () =>
         navigate({
-          pathname: `/${buyOrRent}`,
-          search: createSearchParams({
-            bor: buyOrRent,
-            type: apartmentType === null ? "allTypes" : apartmentType,
-            beds:
-              bedroomsNumbers.length === 0
-                ? "all"
-                : JSON.stringify(bedroomsNumbers),
-            baths:
-              bathroomsNumbers.length === 0
-                ? "all"
-                : JSON.stringify(bathroomsNumbers),
-            minP: minPrice === null ? "min" : minPrice,
-            maxP: maxPrice === null ? "max" : maxPrice,
-          }).toString(),
+          pathname: `/${rentType}`,
+          search: createSearchParams({ ...searchingParameters }).toString(),
         }),
       100
     );
   };
+
   return (
     <div className="homepage">
       <div className="homepage-wallpaper">
@@ -75,7 +89,8 @@ function HomePage() {
                 data-value="sale"
                 className={buyOptionClassname}
                 onClick={(e) => {
-                  setBuyOrRent(e.target.dataset.value);
+                  setDailyOrMonthlyInUrl(null);
+                  setRentType(e.target.dataset.value);
                 }}
               >
                 Buy
@@ -84,14 +99,19 @@ function HomePage() {
                 data-value="rent"
                 className={rentOptionClassname}
                 onClick={(e) => {
-                  setBuyOrRent(e.target.dataset.value);
+                  setDailyOrMonthlyInUrl("monthly");
+                  setRentType(e.target.dataset.value);
                 }}
               >
                 Rent
               </div>
             </div>
             <div className="homepage-wallpaper-boxContainer-form-group2">
-              <FilterOptions getFormValues={getFormValues} />
+              <FilterOptions
+                getFormValues={getFormValues}
+                buyOrRent={rentType}
+                getDailyOrMonthlyInUrl={getDailyOrMonthlyInUrl}
+              />
               <button className="button button-filterButton" type="submit">
                 Find
               </button>

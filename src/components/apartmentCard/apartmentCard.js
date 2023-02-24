@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import { IoLocationSharp } from "react-icons/io5";
 import { LazyLoadImage } from "react-lazy-load-image-component";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { formatPrice } from "../UI/numberFormatter";
 import { BiBed } from "react-icons/bi";
 import { BiBath } from "react-icons/bi";
@@ -14,6 +14,7 @@ function ApartmentCard(props) {
   const [likedApartment, setLikedApartment] = useState(false);
   const [call, showNumber] = useState("Call");
   const [refrence, showRefrence] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // if (props.location.split(",").length <= 1) {
   //   locationEdited = props.location;

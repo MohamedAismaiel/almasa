@@ -1,5 +1,6 @@
 import React, { Fragment, useContext, useEffect, useState } from "react";
 import { LoginContext } from "./components/context/loginContext";
+import FilterBar from "./components/filter bar/filterBar";
 import EmailForm from "./components/Modal/emailForm";
 import Images from "./components/Modal/images";
 import Map from "./components/Modal/map";
