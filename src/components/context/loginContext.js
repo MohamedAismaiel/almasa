@@ -17,6 +17,8 @@ export const LoginContext = React.createContext({
   hideEmailForm: () => {},
   showMap: () => {},
   hideMap: () => {},
+  isPriceMonthlySearch: () => {},
+  isPriceDailySearch: () => {},
   setDetailedApartment: () => {},
   setCardClickedApartment: () => {},
   initialFetching: (
@@ -41,6 +43,7 @@ export const LoginContext = React.createContext({
   amenitie: [],
   emailForm: false,
   mapShown: false,
+  isDailySearch: false,
   // typeInSearch: "tp",
   // bedroomsInSearch: "bd",
   // bathroomsInSearch: "bt",
@@ -50,7 +53,35 @@ export const LoginContext = React.createContext({
 });
 
 const LoginProvider = (props) => {
-  const [isAuth, setIsAuth] = useState(false);
+  const [isAuth, setIsAuth] = useState(async () => {
+    const token = localStorage.getItem("token");
+
+    const graphqlQuery = {
+      query: `query isAuthenticated ($token:String)
+    {
+      isAuthenticated(token:$token)
+      {isAuth}
+    }`,
+      variables: {
+        token,
+      },
+    };
+    await fetch("http://localhost:8080/graphql", {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json",
+      },
+      body: JSON.stringify(graphqlQuery),
+    })
+      .then((res) => {
+        return res.json();
+      })
+      .then((resData) => {
+        if (resData) {
+          return resData.data.isAuthenticated.isAuth;
+        } else return false;
+      });
+  });
   const [token, setToken] = useState(null);
   const [userId, setUserId] = useState(null);
   const [error, setError] = useState([]);
@@ -58,6 +89,7 @@ const LoginProvider = (props) => {
   const [imageIsShown, setImageIsShown] = useState(false);
   const [emailForm, setemailForm] = useState(false);
   const [mapShown, setMapShown] = useState(false);
+  const [isDailySearch, setIsDailySearch] = useState(false);
   const [cardClickedApartment, setCardClickedApartment] = useState(null);
   const [singleApartment, setSingleApartment] = useState({});
 
@@ -85,7 +117,12 @@ const LoginProvider = (props) => {
     "Gym access",
     "Club access",
   ];
-
+  const isPriceMonthlySearch = () => {
+    setIsDailySearch(false);
+  };
+  const isPriceDailySearch = () => {
+    setIsDailySearch(true);
+  };
   const showImageGallery = () => {
     setImageIsShown(true);
   };
@@ -252,6 +289,9 @@ const LoginProvider = (props) => {
         setCardApartment,
         cardClickedApartment,
         initialFetching,
+        isDailySearch,
+        isPriceMonthlySearch,
+        isPriceDailySearch,
       }}
     >
       {props.children}

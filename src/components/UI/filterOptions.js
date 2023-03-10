@@ -9,7 +9,8 @@ function FilterOptions(props) {
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [maxPriceIsTouched, setMaxPriceIsTouched] = useState(false);
-  const initialFetching = useContext(LoginContext).initialFetching;
+  // const isPriceDailySearch = useContext(LoginContext).isPriceDailySearch;
+  // const isPriceMonthlySearch = useContext(LoginContext).isPriceMonthlySearch;
 
   let rentType =
     location.pathname.split("/")[1] === "commerical-sale" || "commerical-rent"
@@ -194,12 +195,6 @@ function FilterOptions(props) {
     setBathroomsNumbers(roomnumbers);
   };
 
-  // useEffect(() => {
-  //   showRentPeriod
-  //     ? setDailyOrMonthly("monthly")
-  //     : setDailyOrMonthly(undefined);
-  // }, [showRentPeriod]);
-
   if (Object.keys(props).length > 0) {
     props.getFormValues(
       apartmentType,
@@ -248,24 +243,6 @@ function FilterOptions(props) {
     }
   }, [location]);
 
-  // const x = bedroomsOptions.filter(({ value }) => {
-  // console.log(value);
-  // console.log(bedroomsNumbers);
-  // return value === bedroomsNumbers;
-  // });
-  // function isPositiveInteger(str) {
-  //   if (typeof str !== "string") {
-  //     return false;
-  //   }
-
-  //   const num = Number(str);
-
-  //   if (Number.isInteger(num) && num > 0) {
-  //     return true;
-  //   }
-
-  //   return false;
-  // }
   return (
     <Fragment>
       <Select
@@ -467,8 +444,7 @@ function FilterOptions(props) {
                         if (monthlyClassActive === true) {
                           return;
                         }
-                        props.getDailyOrMonthlyInUrl &&
-                          props.getDailyOrMonthlyInUrl("monthly");
+                        // isPriceMonthlySearch();
                         setDailyOrMonthly("monthly");
                         setMonthlyClassActive(true);
                         setDailyClassActive(false);
@@ -488,9 +464,7 @@ function FilterOptions(props) {
                         if (dailyClassActive === true) {
                           return;
                         }
-                        props.getDailyOrMonthlyInUrl &&
-                          props.getDailyOrMonthlyInUrl("daily");
-                        // props.getDailyOrMonthlyInUrl("daily");
+                        // isPriceDailySearch();
                         setDailyOrMonthly("daily");
                         setMonthlyClassActive(false);
                         setDailyClassActive(true);

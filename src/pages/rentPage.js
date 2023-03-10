@@ -16,8 +16,16 @@ function RentPage() {
   // const [apartments, setApartments] = useState(null);
   const dailyOrMonthly =
     searchParams.get("dOrM") === null ? "monthly" : searchParams.get("dOrM");
-  const setApartmentsCtx = useContext(LoginContext).setApartmentsHandler;
+
+  const isPriceDailySearch = useContext(LoginContext).isPriceDailySearch;
+  const isPriceMonthlySearch = useContext(LoginContext).isPriceMonthlySearch;
+
+  // dailyOrMonthly === "monthly" ? isPriceMonthlySearch() : isPriceDailySearch();
+
   useEffect(() => {
+    dailyOrMonthly === "monthly" && isPriceMonthlySearch();
+    dailyOrMonthly === "daily" && isPriceDailySearch();
+
     const controller = new AbortController();
     const apartmentType = JSON.stringify(searchParams.get("type"));
     const bedroomsNumbers =
@@ -79,7 +87,7 @@ function RentPage() {
                 refrenceName={p.refrenceName}
                 mainHeader={p.mainHeader}
                 finishing={p.finishing}
-                dayliRentPrice={p.dailyRentPrice}
+                dailyRentPrice={p.dailyRentPrice}
               />
             );
           })}

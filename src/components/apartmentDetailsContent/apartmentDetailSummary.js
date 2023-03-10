@@ -7,22 +7,37 @@ import { GiResize } from "react-icons/gi";
 import { BsQuestionCircle } from "react-icons/bs";
 import { BsBricks } from "react-icons/bs";
 import ApartmentPriceDetailsAbs from "./apartmentDetailPriceAbsolute";
+import { useLocation } from "react-router-dom";
 
 function ApartmentDetailsSummary() {
   const apartment = useContext(LoginContext).singleApartment;
-
+  const location = useLocation();
+  const isDailySearch = location.search.split("?")[1] === "daily";
   if (apartment._id) {
     // const locationEdited =
     //   apartment.location.split(",").slice(0, 1) +
     //   apartment.location.split(",").slice(-1);
-
+    console.log(
+      `${apartment.type} for daily ${apartment.rentOrSale} in ${apartment.location[0].address}`
+    );
     return (
       <div className="detailsArea">
-        <p className="detailsArea-summary">
-          {apartment.type} for {apartment.rentOrSale} in{" "}
-          {apartment.location[0].address}, {apartment.location[0].city}
-        </p>
-        <p className="detailsArea-mainHeader">{apartment.mainHeader}</p>
+        {isDailySearch ? (
+          <p className="detailsArea-summary">
+            {apartment.type} for Daily {apartment.rentOrSale} in{" "}
+            {apartment.location[0].address}, {apartment.location[0].city}
+          </p>
+        ) : (
+          <p className="detailsArea-summary">
+            {apartment.type} for {apartment.rentOrSale} in{" "}
+            {apartment.location[0].address}, {apartment.location[0].city}
+          </p>
+        )}
+        {isDailySearch ? (
+          <p className="detailsArea-mainHeader">{`${apartment.type} for daily ${apartment.rentOrSale} in ${apartment.location[0].address}`}</p>
+        ) : (
+          <p className="detailsArea-mainHeader">{`${apartment.type} for ${apartment.rentOrSale} in ${apartment.location[0].address}`}</p>
+        )}
         <p className="detailsArea-deliverDate">
           Delivered in : {apartment.deliveryDate}
         </p>

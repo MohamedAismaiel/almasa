@@ -2,27 +2,25 @@ import React, { useContext } from "react";
 import { useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import { Routes, Route } from "react-router-dom";
-import CommericalSalePage from "../pages/commercialSalePage";
-import CommericalRentPage from "../pages/CommericalRentPage";
-import FavouritesPage from "../pages/favourites";
-import HomePage from "../pages/homePage";
-import RentPage from "../pages/rentPage";
 import { LoginContext } from "./context/loginContext";
-import FilterBar from "./filter bar/filterBar";
 import FilterLayout from "./UI/filterLayout";
 
 const ApartmentDetail = React.lazy(() => import("../pages/apartmentDetail"));
+const RentPage = React.lazy(() => import("../pages/rentPage"));
 const SalePage = React.lazy(() => import("../pages/salePage"));
+const FavouritesPage = React.lazy(() => import("../pages/favourites"));
 const CreateAppartment = React.lazy(() => import("../pages/createApartment"));
 const Login = React.lazy(() => import("../pages/login"));
 const Signup = React.lazy(() => import("../pages/signup"));
 const Home = React.lazy(() => import("../pages/homePage"));
+const CommericalRentPage = React.lazy(() =>
+  import("../pages/CommericalRentPage")
+);
+const CommericalSalePage = React.lazy(() =>
+  import("../pages/commercialSalePage")
+);
 function Routing() {
   let isAuth = useContext(LoginContext).isAuth;
-  // let isAuth;
-  // if (localStorage.getItem("token")) {
-  //   isAuth = true;
-  // }
 
   return (
     <React.Suspense fallback="loading">

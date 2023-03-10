@@ -14,8 +14,10 @@ function CommericalSalePage() {
   const apartmentsCtx = useContext(LoginContext).apartments;
   // const setApartmentsCtx = useContext(LoginContext).setApartmentsHandler;
   const initialFetching = useContext(LoginContext).initialFetching;
+  const isPriceMonthlySearch = useContext(LoginContext).isPriceMonthlySearch;
 
   useEffect(() => {
+    isPriceMonthlySearch();
     const apartmentType = JSON.stringify(searchParams.get("type"));
     const bedroomsNumbers =
       searchParams.get("beds") === "all" || searchParams.get("beds") === null

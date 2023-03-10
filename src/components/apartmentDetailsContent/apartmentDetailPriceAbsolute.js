@@ -4,21 +4,35 @@ import { formatPrice } from "../UI/numberFormatter";
 import { AiOutlineHeart } from "react-icons/ai";
 import { AiFillHeart } from "react-icons/ai";
 import { IoMdCall, IoMdMail, IoLogoWhatsapp } from "react-icons/io";
-function ApartmentPriceDetailsAbs() {
+import { useLocation } from "react-router-dom";
+
+function ApartmentPriceDetailsAbs(props) {
+  const location = useLocation();
+  const dailyOrMonthly = location.search.split("?")[1];
+  const isItDaily = dailyOrMonthly === "daily";
+
   const apartment = useContext(LoginContext).singleApartment;
   const [showCurrency, setShowCurrency] = useState(false);
 
   const [likedApartment, setLikedApartment] = useState(false);
-  const [price, setPrice] = useState(formatPrice(apartment.price));
+  const [price, setPrice] = useState(
+    isItDaily
+      ? formatPrice(apartment.dailyRentPrice)
+      : formatPrice(apartment.price)
+  );
   // const btnRef = useRef();
   const showEmailForm = useContext(LoginContext).showEmailForm;
   const setCardClickedApartment = useContext(LoginContext).setCardApartment;
+
   const [call, showNumber] = useState("Call");
   const [refrence, showRefrence] = useState(false);
   const [usdPrice, setUSDPrice] = useState(null);
   const [eurPrice, setEURPrice] = useState(null);
   const [gbpPrice, setGBPPrice] = useState(null);
-  let egpPrice = formatPrice(apartment.price);
+
+  const apartmentPrice = isItDaily ? apartment.dailyRentPrice : apartment.price;
+  let egpPrice = formatPrice(apartmentPrice);
+
   //   localStorage.setItem("likedApartments", JSON.stringify(["1", "2", "3"]));
   /////////Liking post/////////////////////////////////////
   useEffect(() => {
@@ -46,7 +60,7 @@ function ApartmentPriceDetailsAbs() {
       variables: {
         from: "egp",
         to: "usd",
-        amount: apartment.price,
+        amount: apartmentPrice,
       },
     };
     fetch("http://localhost:8080/graphql", {
@@ -72,7 +86,7 @@ function ApartmentPriceDetailsAbs() {
       variables: {
         from: "egp",
         to: "eur",
-        amount: apartment.price,
+        amount: apartmentPrice,
       },
     };
     fetch("http://localhost:8080/graphql", {
@@ -98,7 +112,7 @@ function ApartmentPriceDetailsAbs() {
       variables: {
         from: "egp",
         to: "gbp",
-        amount: apartment.price,
+        amount: apartmentPrice,
       },
     };
     fetch("http://localhost:8080/graphql", {
@@ -189,7 +203,7 @@ function ApartmentPriceDetailsAbs() {
       <div className="priceAreaAbs">
         <div className="priceAreaAbs-part1">
           <div className="priceAreaAbs-part1-pricebox">
-            <p>{price}</p>
+            {dailyOrMonthly === "daily" ? <p>{price} / Day</p> : <p>{price}</p>}
             <button
               className="button button-changeCurrency"
               onClick={showCurrencyBox}
@@ -259,6 +273,7 @@ function ApartmentPriceDetailsAbs() {
               <IoMdMail size={16} />
               <span>Email</span>
             </button>
+
             <a
               href="https://wa.me/+201063862535"
               target="_blank"

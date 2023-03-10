@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import { IoLocationSharp } from "react-icons/io5";
 import { LazyLoadImage } from "react-lazy-load-image-component";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { formatPrice } from "../UI/numberFormatter";
 import { BiBed } from "react-icons/bi";
 import { BiBath } from "react-icons/bi";
@@ -16,9 +16,10 @@ function ApartmentCard(props) {
   const [refrence, showRefrence] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // if (props.location.split(",").length <= 1) {
-  //   locationEdited = props.location;
-  // }
+  let isDailySearchCtx = useContext(LoginContext).isDailySearch;
+
+  const dailyOrMonthly =
+    searchParams.get("dOrM") === "daily" ? searchParams.get("dOrM") : "normal";
 
   const [appear, setAppear] = useState(1);
 
@@ -125,6 +126,7 @@ function ApartmentCard(props) {
             </span>
           </div>
         )}
+
         <Link
           target="_blank"
           rel="noreferrer noopener"
@@ -133,12 +135,22 @@ function ApartmentCard(props) {
               showRefrence(false);
             }
           }}
-          to={`/${props.rentOrSale.replace(" ", "-")}/${props.id}`}
+          to={`/${props.rentOrSale.replace(" ", "-")}/${
+            props.id
+          }?${dailyOrMonthly}`}
         >
           <div className="card-detailsbox">
-            <p className="card-detailsbox-price">{price}</p>
+            {isDailySearchCtx ? (
+              <p className="card-detailsbox-price">{price} / day</p>
+            ) : (
+              <p className="card-detailsbox-price">{price}</p>
+            )}
             <p className="card-detailsbox-paymentType">{props.paymentType}</p>
-            <p className="card-detailsbox-brief">{`${props.type} for ${props.rentOrSale} in ${props.location[0].address}`}</p>
+            {isDailySearchCtx ? (
+              <p className="card-detailsbox-brief">{`${props.type} for daily ${props.rentOrSale} in ${props.location[0].address}`}</p>
+            ) : (
+              <p className="card-detailsbox-brief">{`${props.type} for ${props.rentOrSale} in ${props.location[0].address}`}</p>
+            )}
             <p className="card-detailsbox-space">
               {`${props.type}`}&nbsp;||&nbsp;{`${props.rooms}`}&nbsp;
               <BiBed size={18} />

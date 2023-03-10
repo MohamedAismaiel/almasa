@@ -8,7 +8,7 @@ import ApartmentLocation from "../components/apartmentDetailsContent/apartmentLo
 import ApartmentDescriptionDetails from "../components/apartmentDetailsContent/apartmentDescription";
 import ApartmentAmenities from "../components/apartmentDetailsContent/apartmentAmenities";
 import ApartmentRefrence from "../components/apartmentDetailsContent/ApartmentDetailRefrence";
-function ApartmentDetail() {
+function ApartmentDetail(props) {
   const { apartmentId } = useParams();
   const [apartment, setApartment] = useState({});
   let rentOrSaleParams = window.location.pathname.split("/")[1];
@@ -24,6 +24,7 @@ function ApartmentDetail() {
           rentOrSale
           isAvaliable
           price
+          dailyRentPrice
           creator{name}
           location {
             city
@@ -47,6 +48,7 @@ function ApartmentDetail() {
           mainHeader
           amenities
           refrenceName
+        
           createdAt
           updatedAt}
       } `,

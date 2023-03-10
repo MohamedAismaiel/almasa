@@ -1,7 +1,7 @@
 import { Fragment, useContext, useEffect, useState } from "react";
 import { LoginContext } from "../components/context/loginContext";
 import ApartmentCard from "../components/apartmentCard/apartmentCard";
-import FilterBar from "../components/filter bar/filterBar";
+// import FilterBar from "../components/filter bar/filterBar";
 import { useLocation, useSearchParams } from "react-router-dom";
 
 function SalePage() {
@@ -14,8 +14,10 @@ function SalePage() {
   const apartmentsCtx = useContext(LoginContext).apartments;
   // const setApartmentsCtx = useContext(LoginContext).setApartmentsHandler;
   const initialFetching = useContext(LoginContext).initialFetching;
+  const isPriceMonthlySearch = useContext(LoginContext).isPriceMonthlySearch;
 
   useEffect(() => {
+    isPriceMonthlySearch();
     const apartmentType = JSON.stringify(searchParams.get("type"));
     const bedroomsNumbers =
       searchParams.get("beds") === "all" || searchParams.get("beds") === null

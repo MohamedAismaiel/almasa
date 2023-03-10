@@ -18,6 +18,8 @@ import {
   GeoapifyContext,
 } from "@geoapify/react-geocoder-autocomplete";
 import "@geoapify/geocoder-autocomplete/styles/minimal.css";
+import { useContext } from "react";
+import { LoginContext } from "../context/loginContext";
 
 function FilterBar(props) {
   const [apartmentType, setApartmentType] = useState(null);
@@ -30,6 +32,8 @@ function FilterBar(props) {
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const isPriceDailySearch = useContext(LoginContext).isPriceDailySearch;
+  const isPriceMonthlySearch = useContext(LoginContext).isPriceMonthlySearch;
 
   let rentTypeInitialValue =
     location.pathname.split("/")[1] === "commerical-sale" || "commerical-rent"
@@ -203,6 +207,10 @@ function FilterBar(props) {
           setSearchParams({
             ...searchingParameters,
           });
+
+          (dailyOrMonthly === "monthly" || dailyOrMonthly === null) &&
+            isPriceMonthlySearch();
+          dailyOrMonthly === "daily" && isPriceDailySearch();
           // const text = `${location.pathname}?bor=${rentType}&type=${apartmentTypeInUrl}&beds=${bedsInUrl}&baths=${BathsInUrl}&minP=${minPriceInUrl}&maxP=${maxPriceInUrl}&dOrM=${dailyOrMonthly}`;
 
           // window.history.replaceState(null, "", text);
@@ -287,7 +295,11 @@ function FilterBar(props) {
             value: rentTypeInitialValue,
           }}
           value={{
-            label: rentType.charAt(0).toUpperCase() + rentType.slice(1),
+            label:
+              rentType === "commercial-sale" || rentType === "commercial-rent"
+                ? rentType.charAt(0).toUpperCase() +
+                  rentType.slice(1).replace("-", " ")
+                : rentType.charAt(0).toUpperCase() + rentType.slice(1),
             value: rentType,
           }}
           onChange={(e) => {

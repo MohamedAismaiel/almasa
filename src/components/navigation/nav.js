@@ -1,7 +1,9 @@
 import React from "react";
+import { useState } from "react";
+import { useEffect } from "react";
 
 import { useContext } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useSearchParams } from "react-router-dom";
 
 import { LoginContext } from "../context/loginContext";
 import FilterBar from "../filter bar/filterBar";
@@ -9,14 +11,33 @@ import FilterBar from "../filter bar/filterBar";
 import Routing from "../routing";
 
 function Nav() {
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const logoutHandler = useContext(LoginContext).logoutHandler;
   const isAuth = useContext(LoginContext).isAuth;
   const location = useLocation();
-  const rentType = JSON.stringify(location.pathname.split("/")[1]);
+  const rentType = JSON.stringify(
+    location.pathname.split("/")[1].replace("-", " ")
+  );
   const setApartmentsCtx = useContext(LoginContext).setApartmentsHandler;
+  const [dailyOrMonthlyInUrl, setDailyOrMonthlyInUrl] = useState();
+  const isPriceDailySearch = useContext(LoginContext).isPriceDailySearch;
+  const isPriceMonthlySearch = useContext(LoginContext).isPriceMonthlySearch;
+
+  useEffect(() => {
+    setDailyOrMonthlyInUrl(
+      searchParams.get("dOrM") === null ? "monthly" : searchParams.get("dOrM")
+    );
+  }, []);
 
   const fetchInitialApartments = (e) => {
-    if (location.search.length === 0 || e.ctrlKey || e.shiftKey || e.altKey) {
+    if (
+      location.search.length === 0 ||
+      e.ctrlKey ||
+      e.shiftKey ||
+      e.altKey ||
+      searchParams.get("bor") !== e.target.text.toLowerCase()
+    ) {
       return;
     }
 
@@ -82,11 +103,15 @@ function Nav() {
         if (resData) {
           setApartmentsCtx(resData.data.filterdApartments);
         }
+
+        dailyOrMonthlyInUrl === "monthly" && isPriceMonthlySearch();
+        dailyOrMonthlyInUrl === "daily" && isPriceDailySearch();
       })
       .catch((err) => {
         console.log(err);
       });
   };
+
   return (
     <header>
       {isAuth ? (
